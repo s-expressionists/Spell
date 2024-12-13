@@ -10,18 +10,6 @@
       (or (lookup word *english-dictionary*)
           (lookup decapitalized *english-dictionary*)))))
 
-(defun english-check-paragraph (string)
-  ;; TODO optimize, mayhaps. We do not need to create subsequences of the
-  ;; paragraph, we can traverse the dictionary using offsets of that paragraph.
-  (loop with position = 0
-        with length = (length string)
-        for word-start = (find-start string position)
-        for word-end = (find-end string word-start)
-        until (= word-start word-end length)
-        do (setf position word-end)
-        unless (english-lookup (subseq string word-start word-end))
-          collect (cons word-start word-end)))
-
 (declaim (inline english-text-char-p find-start find-end))
 (defun english-text-char-p (character)
   (declare (character character))
@@ -41,3 +29,15 @@
         when (or (= i length)
                  (not (english-text-char-p (char string i))))
           return i))
+
+(defun english-check-paragraph (string)
+  ;; TODO optimize, mayhaps. We do not need to create subsequences of the
+  ;; paragraph, we can traverse the dictionary using offsets of that paragraph.
+  (loop with position = 0
+        with length = (length string)
+        for word-start = (find-start string position)
+        for word-end = (find-end string word-start)
+        until (= word-start word-end length)
+        do (setf position word-end)
+        unless (english-lookup (subseq string word-start word-end))
+          collect (cons word-start word-end)))
