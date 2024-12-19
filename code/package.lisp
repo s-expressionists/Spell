@@ -2,6 +2,9 @@
   (:use
    #:cl)
 
+  (:local-nicknames
+   (#:a #:alexandria))
+
   (:shadow
    #:case
    #:number)

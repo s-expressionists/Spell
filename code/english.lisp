@@ -32,9 +32,8 @@
   (when (and word (string/= word ""))
     (let ((dictionary *english-dictionary*))
       (flet ((try (variant)
-               (let ((result (lookup variant dictionary)))
-                 (when result
-                   (return-from english-lookup result)))))
+               (a:when-let ((result (lookup variant dictionary)))
+                 (return-from english-lookup result))))
         (try word)
         (let* ((initial   (aref word 0))
                (downcased (char-downcase initial)))

@@ -117,8 +117,8 @@
           (destructuring-bind
               (spelling &rest args &key type &allow-other-keys)
               (read-from-string string)
-            (remf args :type)
-            (let ((word (apply #'word spelling type args)))
+            (let* ((initargs (a:remove-from-plist args :type))
+                   (word     (apply #'word spelling type initargs)))
               (insert word spelling into)))
           (incf count))))
     (incf (entry-count into) count)
