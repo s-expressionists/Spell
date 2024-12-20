@@ -1,23 +1,29 @@
-;;;; spell.asd
-
-(asdf:defsystem #:spell
+(defsystem "spell"
   :description "Spellchecking package for Common Lisp"
-  :author "Robert Strandh <robert.strandh@gmail.com>
-Michał \"phoe\" Herda <phoe@disroot.org>"
+  :author ("Robert Strandh <robert.strandh@gmail.com>"
+           "Michał \"phoe\" Herda <phoe@disroot.org>"
+           "Jan Moringen <jan.moringen@posteo.de>")
   :license "BSD"
-  :version "0.0.1"
-  :serial t
-  :components ((:file "spell")
-               (:file "word")
-               (:file "english")))
+  :version (:read-file-form "data/version-string.sexp")
+  :components ((:module     "code"
+                :serial     t
+                :components ((:file "package")
+                             (:file "protocol")
+                             (:file "word")
+                             (:file "spell")
+                             (:file "english")))))
 
-(asdf:defsystem #:spell/simple
+(defsystem "spell/simple"
   :description "Spellchecking package for Common Lisp - simple version"
-  :author "Robert Strandh <robert.strandh@gmail.com>
-Michał \"phoe\" Herda <phoe@disroot.org>"
+  :author ("Robert Strandh <robert.strandh@gmail.com>"
+           "Michał \"phoe\" Herda <phoe@disroot.org>"
+           "Jan Moringen <jan.moringen@posteo.de>")
   :license "BSD"
-  :version "0.0.1"
-  :serial t
-  :components ((:file "spell")
-               (:file "simple")
-               (:file "english")))
+  :version (:read-file-form "data/version-string.sexp")
+  :components ((:module     "code"
+                :serial     t
+                :components ((:file "package")
+                             (:file "protocol")
+                             (:file "simple")
+                             (:file "spell")
+                             (:file "english")))))

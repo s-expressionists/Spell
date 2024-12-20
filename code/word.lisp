@@ -5,9 +5,6 @@
 (defclass word ()
   ((%base :initarg :base :reader base)))
 
-(defmethod initialize-instance :after ((object word) &key spelling)
-  (declare (ignore spelling)))
-
 (defmethod make-load-form ((object word) &optional environment)
   (make-load-form-saving-slots object :environment environment))
 
@@ -17,24 +14,17 @@
             (defclass ,class-name ,@body))))
 
 (defword noun (word)
-  ((%number :initarg :number :reader %number)
-   (%case :initarg :case :initform :nominative :reader %case)
+  ((%number :initarg :number :reader number)
+   (%case :initarg :case :initform :nominative :reader case)
    (%gender :initarg :gender :initform :any :reader gender)
    (%singular :initarg :singular :reader singular)))
 
 (defword proper-noun (noun) ())
 
-(defword negative-mixin ()
-  ((%negative :initform nil :initarg :negative :reader negative)))
-
-(defword contraction-mixin ()
-  ((%contraction :initform nil :initarg :contraction :reader contraction)))
-
-(defword verb (word negative-mixin contraction-mixin)
+(defword verb (word)
   ((%person :initform :any :initarg :person :reader person)
-   (%number :initform :any :initarg :number :reader %number)
+   (%number :initform :any :initarg :number :reader number)
    (%tense :initarg :tense :reader tense)
-   (%mood :initarg :mood :reader mood)
    (%negative :initarg :negative :initform nil :reader negative)
    (%contraction :initarg :contraction :initform nil :reader contraction)
    (%strength :initarg :strength :initform :weak :reader strength)
@@ -47,11 +37,12 @@
 
 (defword adverb (word) ())
 
-(defword pronoun (word negative-mixin)
+(defword pronoun (word)
   ((%person :initarg :person :reader person)
-   (%number :initarg :number :reader %number)
+   (%number :initarg :number :reader number)
    (%gender :initarg :gender :reader gender)
-   (%case :initarg :case :initform :nominative :reader %case)))
+   (%case :initarg :case :initform :nominative :reader case)
+   (%negative :initarg :negative :initform nil :reader negative)))
 
 (defword personal-pronoun (pronoun) ())
 
@@ -69,10 +60,10 @@
 (defword subordinate (conjunction) ())
 
 (defword determiner (word)
-  ((%number :initform :any :initarg :number :reader %number)))
+  ((%number :initform :any :initarg :number :reader number)))
 
 (defword article (determiner)
-  ((%number :initarg :number :reader %number)
+  ((%number :initarg :number :reader number)
    (%determinate :initform nil :initarg :determinate :reader determinate)))
 
 (defword quantifier (determiner) ())
@@ -90,9 +81,7 @@
 
 (defword verb-verb-contraction (verb) ())
 
-(defun word (&rest arguments &key type spelling &allow-other-keys)
-  (let ((arguments (copy-list arguments)))
-    (remf arguments :type)
-    (insert (apply #'make-instance (gethash type *word-types*) arguments)
-            spelling
-            *dictionary*)))
+(defun word (spelling type &rest initargs &key &allow-other-keys)
+  (declare (ignore spelling))
+  (let ((class (gethash type *word-types*)))
+    (apply #'make-instance class initargs)))
