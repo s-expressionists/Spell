@@ -24,13 +24,7 @@
 
 (defword proper-noun (noun) ())
 
-(defword negative-mixin ()
-  ((%negative :initform nil :initarg :negative :reader negative)))
-
-(defword contraction-mixin ()
-  ((%contraction :initform nil :initarg :contraction :reader contraction)))
-
-(defword verb (word negative-mixin contraction-mixin)
+(defword verb (word)
   ((%person :initform :any :initarg :person :reader person)
    (%number :initform :any :initarg :number :reader %number)
    (%tense :initarg :tense :reader tense)
@@ -46,11 +40,12 @@
 
 (defword adverb (word) ())
 
-(defword pronoun (word negative-mixin)
+(defword pronoun (word)
   ((%person :initarg :person :reader person)
    (%number :initarg :number :reader %number)
    (%gender :initarg :gender :reader gender)
-   (%case :initarg :case :initform :nominative :reader %case)))
+   (%case :initarg :case :initform :nominative :reader %case)
+   (%negative :initarg :negative :initform nil :reader negative)))
 
 (defword personal-pronoun (pronoun) ())
 
