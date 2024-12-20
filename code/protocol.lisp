@@ -2,6 +2,8 @@
 
 ;;; Dictionary protocol
 
+(defgeneric entry-count (dictionary))
+
 (defgeneric lookup (string dictionary))
 
 (defgeneric insert (object string dictionary))
