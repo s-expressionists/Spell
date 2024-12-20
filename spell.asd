@@ -6,8 +6,9 @@
   :version (:read-file-form "data/version-string.sexp")
   :components ((:module     "code"
                 :serial     t
-                :components ((:file "spell")
+                :components ((:file "package")
                              (:file "word")
+                             (:file "spell")
                              (:file "english")))))
 
 (defsystem "spell/simple"
@@ -18,6 +19,7 @@
   :version (:read-file-form "data/version-string.sexp")
   :components ((:module     "code"
                 :serial     t
-                :components ((:file "spell")
+                :components ((:file "package")
                              (:file "simple")
+                             (:file "spell")
                              (:file "english")))))
