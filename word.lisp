@@ -5,9 +5,6 @@
 (defclass word ()
   ((%base :initarg :base :reader base)))
 
-(defmethod initialize-instance :after ((object word) &key spelling)
-  (declare (ignore spelling)))
-
 (defmethod make-load-form ((object word) &optional environment)
   (make-load-form-saving-slots object :environment environment))
 
@@ -84,9 +81,7 @@
 
 (defword verb-verb-contraction (verb) ())
 
-(defun word (&rest arguments &key type spelling &allow-other-keys)
-  (let ((arguments (copy-list arguments)))
-    (remf arguments :type)
-    (insert (apply #'make-instance (gethash type *word-types*) arguments)
-            spelling
-            *dictionary*)))
+(defun word (spelling type &rest initargs &key &allow-other-keys)
+  (declare (ignore spelling))
+  (let ((class (gethash type *word-types*)))
+    (apply #'make-instance class initargs)))

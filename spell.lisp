@@ -28,9 +28,13 @@
                  (read-line stream nil stream)))
           ((eq stream line))
         (unless (eq #\; (aref line 0))
-          (let* ((string (concatenate 'string "(" line ")"))
-                 (args (read-from-string string)))
-            (apply #'word :spelling args)
+          (let ((string (concatenate 'string "(" line ")")))
+            (destructuring-bind
+                (spelling &rest args &key type &allow-other-keys)
+                (read-from-string string)
+              (remf args :type)
+              (let ((word (apply #'word spelling type args)))
+                (insert word spelling *dictionary*)))
             (incf counter))))
       (values *dictionary* counter))))
 
