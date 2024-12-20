@@ -6,10 +6,26 @@
 
 (defun english-lookup (word)
   (when (and word (string/= word ""))
-    (let ((decapitalized (copy-seq word)))
-      (setf (aref word 0) (char-downcase (aref word 0)))
-      (or (lookup word *english-dictionary*)
-          (lookup decapitalized *english-dictionary*)))))
+    (let ((dictionary *english-dictionary*))
+      (flet ((try (variant)
+               (let ((result (lookup variant dictionary)))
+                 (when result
+                   (return-from english-lookup result)))))
+        (try word)
+        (let* ((initial   (aref word 0))
+               (downcased (char-downcase initial)))
+          (unless (char= initial downcased)
+            ;; We change, for example, "Anti-Semitic" at the beginning
+            ;; of a sentence to "anti-Semitic" which is in the
+            ;; dictionary.
+            (let ((decapitalized (copy-seq word)))
+              (setf (aref decapitalized 0) downcased)
+              (try decapitalized))
+            ;; We change, for example, "PARAMETER" (which is typical
+            ;; for some commenting styles) to "parameter" which is in
+            ;; the dictionary.
+            (when (every #'upper-case-p word)
+              (try (string-downcase word)))))))))
 
 (declaim (inline english-text-char-p find-start find-end))
 (defun english-text-char-p (character)
