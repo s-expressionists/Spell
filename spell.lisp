@@ -34,21 +34,20 @@
             (incf counter))))
       (values *dictionary* counter))))
 
-(defmethod lookup (string (dictionary dictionary))
+(defmethod lookup ((string string) (dictionary dictionary))
   (assert (plusp (length string)))
   (%lookup string (length string) (contents dictionary)))
 
 (defgeneric entries (node))
 
 (defgeneric %lookup (string suffix node)
-  (:method (string suffix node)
-    (declare (ignore string suffix node))
+  (:method ((string string) (suffix t) (node t))
     '()))
 
 (defclass leaf-mixin ()
   ((%entries :initform '() :initarg :entries :accessor entries)))
 
-(defmethod %lookup (string (suffix (eql 0)) (node leaf-mixin))
+(defmethod %lookup ((string string) (suffix (eql 0)) (node leaf-mixin))
   (entries node))
 
 (defclass interior-mixin ()
@@ -56,12 +55,12 @@
 
 (defclass interior-node (interior-mixin node) ())
 
-(defmethod %lookup (string (suffix (eql 0)) (node interior-node))
+(defmethod %lookup ((string string) (suffix (eql 0)) (node interior-node))
   '())
 
-(defmethod %lookup (string suffix (node interior-mixin))
-  (let ((child (find-child (aref string (- (length string) suffix))
-                           (children node))))
+(defmethod %lookup ((string string) (suffix integer) (node interior-mixin))
+  (let* ((character (aref string (- (length string) suffix)))
+         (child     (find-child character (children node))))
     (if (null child)
         nil
         (%lookup string (1- suffix) child))))
@@ -71,26 +70,30 @@
 
 (defgeneric %insert (object string suffix node))
 
-(defmethod %insert (object string (suffix (eql 0)) (node leaf-mixin))
+(defmethod %insert
+    ((object t) (string string) (suffix (eql 0)) (node   leaf-mixin))
   (push object (entries node)))
 
-(defmethod %insert (object string (suffix (eql 0)) (node node))
+(defmethod %insert ((object t) (string string) (suffix (eql 0)) (node node))
   (change-class node 'leaf-node)
   (%insert object string 0 node))
 
-(defmethod %insert (object string (suffix (eql 0)) (node interior-node))
+(defmethod %insert
+    ((object t) (string string) (suffix (eql 0)) (node interior-node))
   (change-class node 'interior-leaf-node)
   (%insert object string 0 node))
 
-(defmethod %insert (object string suffix (node leaf-mixin))
+(defmethod %insert
+    ((object t) (string string) (suffix integer) (node leaf-mixin))
   (change-class node 'interior-leaf-node)
   (%insert object string suffix node))
 
-(defmethod %insert (object string suffix (node node))
+(defmethod %insert ((object t) (string string) (suffix integer) (node node))
   (change-class node 'interior-node)
   (%insert object string suffix node))
 
-(defmethod %insert (object string suffix (node interior-mixin))
+(defmethod %insert
+    ((object t) (string string) (suffix integer) (node interior-mixin))
   (let ((child (find-child (aref string (- (length string) suffix))
                            (children node))))
     (when (null child)
@@ -101,22 +104,23 @@
                        (children node))))
     (%insert object string (1- suffix) child)))
 
-(defmethod insert (object string (dictionary dictionary))
+(defmethod insert ((object t) (string string) (dictionary dictionary))
   (%insert object string (length string) (contents dictionary)))
 
 (defgeneric find-child (char entries))
 
-(defmethod find-child (char (entries list))
+(defmethod find-child ((char character) (entries list))
   (cdr (assoc char entries)))
 
-(defmethod find-child (char (entries vector))
-  (aref entries (- (char-code char) #.(char-code #\a))))
+(defmethod find-child ((char character) (entries vector))
+  (let ((index (- (char-code char) #.(char-code #\a))))
+    (aref entries index)))
 
 (defgeneric add-child (node char entries))
 
-(defmethod add-child (node char (entries list))
+(defmethod add-child ((node t) (char character) (entries list))
   (acons char node entries))
 
-(defmethod add-child (node char (entries vector))
-  (setf (aref entries (- (char-code char) #.(char-code #\a)))
-        node))
+(defmethod add-child ((node t) (char character) (entries vector))
+  (let ((index (- (char-code char) #.(char-code #\a))))
+    (setf (aref entries index) node)))
