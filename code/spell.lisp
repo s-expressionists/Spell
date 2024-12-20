@@ -103,12 +103,10 @@
 (defmethod insert ((object t) (string string) (dictionary dictionary))
   (%insert object string (length string) (contents dictionary)))
 
-(defvar *dictionary*)
-
 (defun load-dictionary (filename)
   (with-open-file (stream filename)
     (let* ((counter 0)
-           (*dictionary* (make-instance 'dictionary)))
+           (dictionary (make-instance 'dictionary)))
       (do ((line (read-line stream nil stream)
                  (read-line stream nil stream)))
           ((eq stream line))
@@ -119,6 +117,6 @@
                 (read-from-string string)
               (remf args :type)
               (let ((word (apply #'word spelling type args)))
-                (insert word spelling *dictionary*)))
+                (insert word spelling dictionary)))
             (incf counter))))
-      (values *dictionary* counter))))
+      (values dictionary counter))))
