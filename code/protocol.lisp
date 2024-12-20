@@ -8,6 +8,8 @@
 
 (defgeneric insert (object string dictionary))
 
+(defgeneric load-dictionary (source &key into))
+
 ;;; Trie node protocol
 
 (defgeneric entries (node))

@@ -59,7 +59,8 @@
 
   ;; Dictionary protocol
   (:export
-   #:entry-count)
+   #:entry-count
+   #:load-dictionary)
 
   (:export
    #:english-lookup
