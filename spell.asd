@@ -4,10 +4,11 @@
            "Michał \"phoe\" Herda <phoe@disroot.org>")
   :license "BSD"
   :version (:read-file-form "data/version-string.sexp")
-  :serial t
-  :components ((:file "spell")
-               (:file "word")
-               (:file "english")))
+  :components ((:module     "code"
+                :serial     t
+                :components ((:file "spell")
+                             (:file "word")
+                             (:file "english")))))
 
 (defsystem "spell/simple"
   :description "Spellchecking package for Common Lisp - simple version"
@@ -15,7 +16,8 @@
            "Michał \"phoe\" Herda <phoe@disroot.org>")
   :license "BSD"
   :version (:read-file-form "data/version-string.sexp")
-  :serial t
-  :components ((:file "spell")
-               (:file "simple")
-               (:file "english")))
+  :components ((:module     "code"
+                :serial     t
+                :components ((:file "spell")
+                             (:file "simple")
+                             (:file "english")))))

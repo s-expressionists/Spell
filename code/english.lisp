@@ -1,7 +1,8 @@
 (in-package #:spell)
 
 (defparameter *english-dictionary*
-  #.(load-dictionary (asdf:system-relative-pathname :spell "english.txt")))
+  #.(load-dictionary
+     (asdf:system-relative-pathname "spell" "data/english.txt")))
 
 (defun english-lookup (word)
   (when (and word (string/= word ""))
