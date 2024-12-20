@@ -7,6 +7,7 @@
   :components ((:module     "code"
                 :serial     t
                 :components ((:file "package")
+                             (:file "protocol")
                              (:file "word")
                              (:file "spell")
                              (:file "english")))))
@@ -20,6 +21,7 @@
   :components ((:module     "code"
                 :serial     t
                 :components ((:file "package")
+                             (:file "protocol")
                              (:file "simple")
                              (:file "spell")
                              (:file "english")))))
