@@ -14,8 +14,8 @@
             (defclass ,class-name ,@body))))
 
 (defword noun (word)
-  ((%number :initarg :number :reader %number)
-   (%case :initarg :case :initform :nominative :reader %case)
+  ((%number :initarg :number :reader number)
+   (%case :initarg :case :initform :nominative :reader case)
    (%gender :initarg :gender :initform :any :reader gender)
    (%singular :initarg :singular :reader singular)))
 
@@ -23,7 +23,7 @@
 
 (defword verb (word)
   ((%person :initform :any :initarg :person :reader person)
-   (%number :initform :any :initarg :number :reader %number)
+   (%number :initform :any :initarg :number :reader number)
    (%tense :initarg :tense :reader tense)
    (%negative :initarg :negative :initform nil :reader negative)
    (%contraction :initarg :contraction :initform nil :reader contraction)
@@ -39,9 +39,9 @@
 
 (defword pronoun (word)
   ((%person :initarg :person :reader person)
-   (%number :initarg :number :reader %number)
+   (%number :initarg :number :reader number)
    (%gender :initarg :gender :reader gender)
-   (%case :initarg :case :initform :nominative :reader %case)
+   (%case :initarg :case :initform :nominative :reader case)
    (%negative :initarg :negative :initform nil :reader negative)))
 
 (defword personal-pronoun (pronoun) ())
@@ -60,10 +60,10 @@
 (defword subordinate (conjunction) ())
 
 (defword determiner (word)
-  ((%number :initform :any :initarg :number :reader %number)))
+  ((%number :initform :any :initarg :number :reader number)))
 
 (defword article (determiner)
-  ((%number :initarg :number :reader %number)
+  ((%number :initarg :number :reader number)
    (%determinate :initform nil :initarg :determinate :reader determinate)))
 
 (defword quantifier (determiner) ())
