@@ -34,7 +34,6 @@
   ((%person :initform :any :initarg :person :reader person)
    (%number :initform :any :initarg :number :reader %number)
    (%tense :initarg :tense :reader tense)
-   (%mood :initarg :mood :reader mood)
    (%negative :initarg :negative :initform nil :reader negative)
    (%contraction :initarg :contraction :initform nil :reader contraction)
    (%strength :initarg :strength :initform :weak :reader strength)
