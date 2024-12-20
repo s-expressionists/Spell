@@ -1,0 +1,1 @@
+"utilities" :base "utility" :type :noun :number :plural
