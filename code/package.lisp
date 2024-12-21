@@ -57,6 +57,11 @@
    #:person
    #:refnumber)
 
+  ;; Dictionary protocol
+  (:export
+   #:entry-count
+   #:load-dictionary)
+
   (:export
    #:english-lookup
    #:english-check-paragraph))

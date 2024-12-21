@@ -2,9 +2,13 @@
 
 ;;; Dictionary protocol
 
+(defgeneric entry-count (dictionary))
+
 (defgeneric lookup (string dictionary))
 
 (defgeneric insert (object string dictionary))
+
+(defgeneric load-dictionary (source &key into))
 
 ;;; Trie node protocol
 

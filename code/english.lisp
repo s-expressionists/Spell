@@ -2,20 +2,29 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun load-english-dictionary (&key (verbose *compile-verbose*))
-    (let ((filename   (asdf:system-relative-pathname
-                       "spell" "data/english.txt"))
-          dictionary entry-count)
-      (flet ((note (format-control &rest format-arguments)
+    (labels ((note (format-control &rest format-arguments)
                (when verbose
                  (let ((stream *standard-output*))
                    (fresh-line stream)
                    (pprint-logical-block (stream nil :per-line-prefix "; ")
                      (apply #'format stream format-control format-arguments))
-                   (force-output stream)))))
-        (note "Loading dictionary ~:_~S" filename)
-        (setf (values dictionary entry-count) (load-dictionary filename))
-        (note "Will dump dictionary with ~:_~:D entr~:@P" entry-count))
-      dictionary)))
+                   (force-output stream))))
+             (load-file (dictionary relative-filename)
+               (let ((filename (asdf:system-relative-pathname
+                                "spell" relative-filename)))
+                 (cond ((probe-file filename)
+                        (note "Loading dictionary ~:_~S" filename)
+                        (load-dictionary filename :into dictionary))
+                       (t
+                        (note "Skipping non-existent file ~:_~S"
+                              filename)
+                        dictionary)))))
+      (let ((dictionary (reduce #'load-file '("data/english.txt"
+                                              "data/english-additions.txt")
+                                :initial-value (make-instance 'dictionary))))
+        (note "Will dump dictionary with ~:_~:D entr~:@P"
+              (entry-count dictionary))
+        dictionary))))
 
 (defparameter *english-dictionary* #.(load-english-dictionary))
 

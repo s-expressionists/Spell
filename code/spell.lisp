@@ -91,7 +91,10 @@
 ;;; Dictionary
 
 (defclass dictionary ()
-  ((%contents :initform (make-instance 'node) :accessor contents)))
+  ((%contents    :accessor contents
+                 :initform (make-instance 'node))
+   (%entry-count :accessor entry-count
+                 :initform 0)))
 
 (defmethod make-load-form ((object dictionary) &optional environment)
   (make-load-form-saving-slots object :environment environment))
@@ -103,22 +106,36 @@
 (defmethod insert ((object t) (string string) (dictionary dictionary))
   (%insert object string (length string) (contents dictionary)))
 
-(defvar *dictionary*)
+(defmethod load-dictionary ((source stream)
+                            &key (into (make-instance 'dictionary)))
+  (let ((count 0))
+    (do ((line (read-line source nil source)
+               (read-line source nil source)))
+        ((eq source line))
+      (unless (eq #\; (aref line 0))
+        (let ((string (concatenate 'string "(" line ")")))
+          (destructuring-bind
+              (spelling &rest args &key type &allow-other-keys)
+              (read-from-string string)
+            (remf args :type)
+            (let ((word (apply #'word spelling type args)))
+              (insert word spelling into)))
+          (incf count))))
+    (incf (entry-count into) count)
+    into))
 
-(defun load-dictionary (filename)
-  (with-open-file (stream filename)
-    (let* ((counter 0)
-           (*dictionary* (make-instance 'dictionary)))
-      (do ((line (read-line stream nil stream)
-                 (read-line stream nil stream)))
-          ((eq stream line))
-        (unless (eq #\; (aref line 0))
-          (let ((string (concatenate 'string "(" line ")")))
-            (destructuring-bind
-                (spelling &rest args &key type &allow-other-keys)
-                (read-from-string string)
-              (remf args :type)
-              (let ((word (apply #'word spelling type args)))
-                (insert word spelling *dictionary*)))
-            (incf counter))))
-      (values *dictionary* counter))))
+(defmethod load-dictionary ((source pathname) &rest args &key into)
+  (declare (ignore into))
+  (with-open-file (stream source)
+    (apply #'load-dictionary stream args)))
+
+(defmethod load-dictionary ((source string) &rest args &key into)
+  (declare (ignore into))
+  (apply #'load-dictionary (pathname source) args))
+
+(defmethod load-dictionary ((source sequence)
+                            &key (into (make-instance 'dictionary)))
+  (mapc (lambda (source)
+          (with-simple-restart (skip "Skip source ~A" source)
+            (apply #'load-dictionary source :into into)))
+        source))
