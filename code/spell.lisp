@@ -3,7 +3,7 @@
 ;;; Internal protocols
 
 (defgeneric %lookup (string suffix node)
-  (:method ((string string) (suffix t) (node t))
+  (:method ((string string) (suffix integer) (node t))
     '()))
 
 (defgeneric %insert (object string suffix node))
