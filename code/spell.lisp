@@ -112,7 +112,8 @@
     (do ((line (read-line source nil source)
                (read-line source nil source)))
         ((eq source line))
-      (unless (eq #\; (aref line 0))
+      (unless (or (zerop (length line))
+                  (eq #\; (aref line 0)))
         (let ((string (concatenate 'string "(" line ")")))
           (destructuring-bind
               (spelling &rest args &key type &allow-other-keys)
