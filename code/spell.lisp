@@ -3,7 +3,7 @@
 ;;; Internal protocols
 
 (defgeneric %lookup (string suffix node)
-  (:method ((string string) (suffix t) (node t))
+  (:method ((string string) (suffix integer) (node t))
     '()))
 
 (defgeneric %insert (object string suffix node))
@@ -109,18 +109,12 @@
 (defmethod load-dictionary ((source stream)
                             &key (into (make-instance 'dictionary)))
   (let ((count 0))
-    (do ((line (read-line source nil source)
-               (read-line source nil source)))
-        ((eq source line))
-      (unless (eq #\; (aref line 0))
-        (let ((string (concatenate 'string "(" line ")")))
-          (destructuring-bind
-              (spelling &rest args &key type &allow-other-keys)
-              (read-from-string string)
-            (remf args :type)
-            (let ((word (apply #'word spelling type args)))
-              (insert word spelling into)))
-          (incf count))))
+    (map-dictionary-file-entries
+     (lambda (spelling type base &rest initargs)
+       (let ((word (apply #'word spelling type :base base initargs)))
+         (insert word spelling into))
+       (incf count))
+     source)
     (incf (entry-count into) count)
     into))
 

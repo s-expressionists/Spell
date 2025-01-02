@@ -29,4 +29,5 @@ jobs:
           sbcl --noinform --disable-debugger                                                                                                \
             --load "${HOME}/quicklisp/setup.lisp"                                                                                           \
             --eval '(asdf:initialize-source-registry (quote (:source-registry (:directory "'"$(pwd)"'") :ignore-inherited-configuration)))' \
-            --eval '(ql:quickload "spell")'
+            --eval '(ql:quickload "spell/test")'                                                                                            \
+            --eval '(asdf:test-system "spell")'
