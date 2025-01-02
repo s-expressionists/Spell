@@ -24,11 +24,11 @@
 (defword verb (word)
   ((%person :initform :any :initarg :person :reader person)
    (%number :initform :any :initarg :number :reader number)
-   (%tense :initarg :tense :reader tense)
+   (%tense :initarg :tense :reader tense :initform nil)
    (%negative :initarg :negative :initform nil :reader negative)
    (%contraction :initarg :contraction :initform nil :reader contraction)
    (%strength :initarg :strength :initform :weak :reader strength)
-   (%infinitive :initarg :infinitive :reader infinitive)))
+   (%infinitive :initarg :infinitive :reader infinitive :initform nil)))
 
 (defword preposition (word) ())
 
