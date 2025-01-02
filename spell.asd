@@ -13,7 +13,9 @@
                              (:file "text-file")
                              (:file "word")
                              (:file "spell")
-                             (:file "english")))))
+                             (:file "english"))))
+
+  :in-order-to ((test-op (test-op "spell/test"))))
 
 (defsystem "spell/simple"
   :description "Spellchecking package for Common Lisp - simple version"
@@ -29,3 +31,16 @@
                              (:file "simple")
                              (:file "spell")
                              (:file "english")))))
+
+(defsystem "spell/test"
+  :description "Unit tests for the spell system."
+  :depends-on  ("fiveam"
+
+                (:version "spell" (:read-file-form "data/version-string.sexp")))
+  :components  ((:module     "test"
+                 :serial     t
+                 :components ((:file "package")
+                              (:file "english"))))
+
+  :perform     (test-op (operation component)
+                 (uiop:symbol-call '#:spell.test '#:run-tests)))
