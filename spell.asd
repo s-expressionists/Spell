@@ -10,6 +10,7 @@
                 :serial     t
                 :components ((:file "package")
                              (:file "protocol")
+                             (:file "text-file")
                              (:file "word")
                              (:file "spell")
                              (:file "english")))))
