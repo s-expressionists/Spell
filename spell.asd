@@ -40,6 +40,7 @@
   :components  ((:module     "test"
                  :serial     t
                  :components ((:file "package")
+                              (:file "utilities")
                               (:file "english"))))
 
   :perform     (test-op (operation component)
