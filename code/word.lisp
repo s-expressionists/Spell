@@ -16,8 +16,7 @@
 (defword noun (word)
   ((%number :initarg :number :reader number)
    (%case :initarg :case :initform :nominative :reader case)
-   (%gender :initarg :gender :initform :any :reader gender)
-   (%singular :initarg :singular :reader singular)))
+   (%gender :initarg :gender :initform :any :reader gender)))
 
 (defword proper-noun (noun) ())
 
