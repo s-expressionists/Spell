@@ -77,16 +77,8 @@
 (defmethod find-child ((char character) (entries list))
   (cdr (assoc char entries)))
 
-(defmethod find-child ((char character) (entries vector))
-  (let ((index (- (char-code char) #.(char-code #\a))))
-    (aref entries index)))
-
 (defmethod add-child ((node t) (char character) (entries list))
   (acons char node entries))
-
-(defmethod add-child ((node t) (char character) (entries vector))
-  (let ((index (- (char-code char) #.(char-code #\a))))
-    (setf (aref entries index) node)))
 
 ;;; Dictionary
 
