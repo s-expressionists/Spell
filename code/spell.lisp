@@ -2,9 +2,7 @@
 
 ;;; Internal protocols
 
-(defgeneric %lookup (string suffix node)
-  (:method ((string string) (suffix integer) (node t))
-    '()))
+(defgeneric %lookup (string suffix node))
 
 (defgeneric %insert (object string suffix node))
 
