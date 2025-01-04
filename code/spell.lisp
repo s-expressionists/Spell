@@ -118,7 +118,7 @@
       (map-dictionary-file-entries
        (lambda (spelling type base &rest initargs)
          (let ((spelling (intern-string spelling))
-               (word     (apply #'word spelling type :base base initargs)))
+               (word     (apply #'make-word spelling type :base base initargs)))
            (insert word spelling into))
          (incf count))
        source))

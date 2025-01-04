@@ -11,7 +11,7 @@
     (map-dictionary-entries
      (lambda (word type base &rest initargs)
        (funcall progress)
-       (let* ((class  (gethash type spell::*word-types*))
+       (let* ((class  (third (spell::find-word-class type)))
               (result (find-if
                        (lambda (result)
                          (result-matches-p result class base initargs))

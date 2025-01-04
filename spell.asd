@@ -13,11 +13,16 @@
                 :serial     t
                 :components ((:file "package")
                              (:file "protocol")
+                             ;; Utilities
                              (:file "bitfield-class")
                              (:file "strings")
                              (:file "text-file")
-                             (:file "word")
+                             ;; Words
+                             (:file "word-class") ; metaclass
+                             (:file "word-classes")
+                             ;; Trie
                              (:file "spell")
+                             ;; English dictionary
                              (:file "english"))))
 
   :in-order-to ((test-op (test-op "spell/test"))))

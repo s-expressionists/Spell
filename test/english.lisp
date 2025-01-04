@@ -17,7 +17,8 @@
     (map-dictionary-entries
      (lambda (word type base &rest initargs)
        (funcall progress)
-       (let* ((expected-class (gethash type spell::*word-types*))
+       (let* ((class-info     (spell::find-word-class type))
+              (expected-class (third class-info))
               (results        (a:ensure-list (spell:english-lookup word))))
          (fiveam:is-true
           (some (lambda (result)
