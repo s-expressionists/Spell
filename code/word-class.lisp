@@ -4,11 +4,26 @@
 
 (defclass word-class (bitfield-class) ())
 
+(defmethod c2mop:compute-slots ((class word-class))
+  ;; Move `%base-suffix' to the front so that it uses predictable bits
+  ;; in the bitfield. But the `%info' slot has to be initialized
+  ;; first, so keep that at the very front.
+  (let ((slots (call-next-method)))
+    (flet ((slot-position (name)
+             (position name slots :test #'eq :key #'c2mop:slot-definition-name)))
+      (let ((info-position        (slot-position '%info))
+            (base-suffix-position (slot-position '%base-suffix)))
+        (if base-suffix-position
+            (append (subseq slots 0 (1+ info-position))
+                    (list (nth base-suffix-position slots))
+                    (subseq slots (1+ info-position) base-suffix-position)
+                    (subseq slots (1+ base-suffix-position)))
+            slots)))))
+
 ;;; `word' base class
 
 (defclass word (utilities.print-items:print-items-mixin)
-  ((%base :initarg :base
-          :reader  base))
+  ()
   (:metaclass word-class))
 
 (defmethod make-load-form ((object word) &optional environment)
@@ -21,24 +36,45 @@
                                         :environment environment)))
 
 (defmethod utilities.print-items:print-items append ((object word))
-  (append
-   `((:base "~S" ,(base object)))
-   (when (and (slot-exists-p object '%info)
-              (slot-boundp object '%info))
-     (loop :with class    =   (class-of object)
-           :for  previous =   :base :then name
-           :for  field    :in (fields class)
-           :for  name     =   (bitfield:bitfield-slot-name field)
-           :collect `((,name (:after ,previous))
-                      " ~(~A~):~A"
-                      ,(subseq (string name) 1)
-                      ,(ignore-errors (slot-value object name)))))))
+  (when (and (slot-exists-p object '%info)
+             (slot-boundp object '%info))
+    (loop :with class    =   (class-of object)
+          :for  previous =   :base :then name
+          :for  field    :in (fields class)
+          :for  name     =   (bitfield:bitfield-slot-name field)
+          :collect `((,name (:after ,previous))
+                     " ~(~A~):~A"
+                     ,(subseq (string name) 1)
+                     ,(ignore-errors (slot-value object name))))))
+
+(defclass explicit-base-mixin ()
+  ((%base :initarg :base
+          :type    string
+          :reader  base))
+  (:default-initargs
+   :base (a:required-argument :base))
+  (:metaclass bitfield-class))
+
+(defmethod print-items:print-items append ((object explicit-base-mixin))
+  `((:base "~S" ,(base object))))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defconstant +base-suffix-bits+ 3))
+
+(defconstant +base-suffix-limit+
+  (1- (ash 1 +base-suffix-bits+)))
+
+(defclass implicit-base-mixin ()
+  ((%base-suffix :initarg :base-suffix
+                 :type    (unsigned-byte #.+base-suffix-bits+)
+                 :reader  base-suffix))
+  (:metaclass bitfield-class))
 
 ;;; Word class registry
 
 ;;; A vector of entries of the form
 ;;;
-;;;   (TYPE CONSTRUCTOR CLASS)
+;;;   (TYPE CONSTRUCTOR IMPLICIT-BASE-CLASS EXPLICIT-BASE-CLASS)
 ;;;
 ;;; where
 ;;;
@@ -49,8 +85,10 @@
 ;;; makes and returns an instance of the word class with the supplied
 ;;; info and base.
 ;;;
-;;; CLASS is the name of the class that should be used to represent
-;;; words of the given TYPE.
+;;; EXPLICIT-BASE-CLASS and IMPLICIT-BASE-CLASS are the names of the
+;;; classes that should be used to represent words of the given TYPE
+;;; when it is necessary and not necessary respectively to explicitly
+;;; store the base string.
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defconstant +word-class-index-bits+ 5)
 
@@ -75,31 +113,55 @@
                                    :base base
                                    ,@(when infop '(:info info)))))))
 
-(defun add-word-class (type class-name)
-  (let* ((constructor (make-word-class-constructor class-name))
-         (entry       (list type constructor class-name))
+(defun add-word-class (type implicit-base-class-name explicit-base-class-name)
+  (let* ((constructor (make-word-class-constructor explicit-base-class-name))
+         (entry       (list type
+                            constructor
+                            implicit-base-class-name
+                            explicit-base-class-name))
          (classes     *word-classes*)
          (index       (position nil classes)))
     (setf (aref classes index) entry)))
 
 (defmacro defword (class-name superclasses slots)
-  (let ((type (intern (symbol-name class-name) '#:keyword)))
+  (let ((type                     (a:make-keyword class-name))
+        (implicit-base-class-name (a:symbolicate '#:implicit-base- class-name))
+        (explicit-base-class-name (a:symbolicate '#:explicit-base- class-name)))
     `(progn
        (defclass ,class-name (,@superclasses word)
          (,@slots)
          (:metaclass word-class))
 
-       (add-word-class ',type ',class-name))))
+       (defclass ,implicit-base-class-name (implicit-base-mixin ,class-name)
+         ()
+         (:metaclass word-class))
+
+       (defclass ,explicit-base-class-name (explicit-base-mixin ,class-name)
+         ()
+         (:metaclass word-class))
+
+       (add-word-class
+        ',type ',implicit-base-class-name ',explicit-base-class-name))))
 
 ;;; Making word instances
 
-(defun make-word (spelling type &rest initargs &key &allow-other-keys)
-  (declare (ignore spelling))
-  (let* ((class-info (find-word-class type))
-         (class      (third class-info))
-         (initargs   (loop :for (key value) :on initargs :by #'cddr
-                           :collect key
-                           :collect (if (stringp value)
-                                        (intern-string value)
-                                        value))))
-    (apply #'make-instance class initargs)))
+(defun make-word (spelling type base &rest initargs &key &allow-other-keys)
+  (let ((initargs   (loop :for (key value) :on initargs :by #'cddr
+                          :collect key
+                          :collect (if (stringp value)
+                                       (intern-string value)
+                                       value)))
+        (class-info (find-word-class type)))
+    (destructuring-bind (implicit-base-class explicit-base-class)
+        (cddr class-info)
+      (let (base-suffix)
+        (cond ((string= spelling base)
+               (apply #'make-instance implicit-base-class initargs))
+              ((and (<= (setf base-suffix (- (length spelling) (length base)))
+                        +base-suffix-limit+)
+                    (a:starts-with-subseq base spelling))
+               (apply #'make-instance implicit-base-class
+                      :base-suffix base-suffix initargs))
+              (t
+               (apply #'make-instance explicit-base-class
+                      :base base initargs)))))))

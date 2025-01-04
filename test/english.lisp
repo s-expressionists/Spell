@@ -18,7 +18,7 @@
      (lambda (word type base &rest initargs)
        (funcall progress)
        (let* ((class-info     (spell::find-word-class type))
-              (expected-class (third class-info))
+              (expected-class (fourth class-info))
               (results        (a:ensure-list (spell:english-lookup word))))
          (fiveam:is-true
           (some (lambda (result)

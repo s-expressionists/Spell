@@ -31,7 +31,27 @@
     `(((:entries (:after :children)) " entries: ~{~A~^ ~}" ,entries))))
 
 (defmethod %lookup ((string string) (suffix (eql 0)) (node leaf-mixin))
-  (entries node))
+  (mapcar (lambda (word)
+            ;; This is temporary: make an instance of the explicit
+            ;; base "sibling" class.
+            (if (typep word 'implicit-base-mixin)
+                (let* ((class-name  (class-name (class-of word)))
+                       (class-info  (find class-name *word-classes*
+                                          :test #'eq :key #'third))
+                       (new-class   (find-class (fourth class-info)))
+                       (base-suffix (base-suffix word))
+                       (base        (if (plusp base-suffix)
+                                        (subseq string 0 (- (length string)
+                                                            base-suffix))
+                                        string)))
+                  (if (slot-exists-p (c2mop:class-prototype new-class) '%info)
+                      (let ((new-info (ldb (byte 29 +base-suffix-bits+)
+                                           (slot-value word '%info))))
+                        (make-instance new-class :info new-info
+                                                 :base base))
+                      (make-instance new-class :base base)))
+                word))
+          (entries node)))
 
 (defmethod %insert
     ((object t) (string string) (suffix (eql 0)) (node leaf-mixin))
@@ -117,8 +137,9 @@
     (with-string-interning ()
       (map-dictionary-file-entries
        (lambda (spelling type base &rest initargs)
-         (let ((spelling (intern-string spelling))
-               (word     (apply #'make-word spelling type :base base initargs)))
+         (let* ((spelling (intern-string spelling))
+                (base     (intern-string base))
+                (word     (apply #'make-word spelling type base initargs)))
            (insert word spelling into))
          (incf count))
        source))
