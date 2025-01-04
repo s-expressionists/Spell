@@ -11,14 +11,78 @@
 
 (defgeneric compact-entry (entry))
 
+(defgeneric expand-entry (entry spelling))
+
+;;; Entries
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defconstant +info-bits+
+    (flet ((max-info (class-name)
+             (reduce #'max (fields (find-class class-name))
+                     :key           #'bitfield:bitfield-slot-end
+                     :initial-value 0)))
+      (loop :for (nil nil class1 class2) :across *word-classes*
+            :when (not (null class1))
+            :maximizing (max (max-info class1) (max-info class2))))))
+
+(deftype class-index+info ()
+  `(unsigned-byte ,(+ +word-class-index-bits+ +info-bits+)))
+
+(declaim (inline decode-class-info-and-info))
+(defun decode-class-info-and-info (class-index+info)
+  (let* ((class-index (ldb (byte +word-class-index-bits+ 0) class-index+info))
+         (class-info  (aref *word-classes* class-index))
+         (info        (ldb (byte +info-bits+ +word-class-index-bits+)
+                           class-index+info)))
+    (values class-info info)))
+
+(defun encode-class-index+info (class info)
+  (let ((class-index (position (class-name class) *word-classes*
+                               :key (lambda (cell)
+                                      (if (subtypep class 'explicit-base-mixin)
+                                          (fourth cell)
+                                          (third cell))))))
+    (logior (ash info +word-class-index-bits+) class-index)))
+
+(deftype compact-entry ()
+  '(or class-index+info
+       (cons class-index+info simple-string))) ; (CLASS-INDEX+INFO . BASE)
+
+(defmethod compact-entry ((entry word))
+  (let ((class (class-of entry))
+        (info  (if (slot-exists-p entry '%info)
+                   (slot-value entry '%info)
+                   0)))
+    (encode-class-index+info class info)))
+
+(defmethod compact-entry ((entry explicit-base-mixin))
+  (let ((info (call-next-method))
+        (base (intern-string (base entry)))) ; TODO: could intern strings into a big array and add index to flags
+    (cons info base)))
+
+(defmethod expand-entry ((entry cons) (spelling string))
+  (destructuring-bind (class-index+info . base) entry
+    (multiple-value-bind (class-info info)
+        (decode-class-info-and-info class-index+info)
+      (let ((constructor (the function (second class-info))))
+        (funcall constructor info base)))))
+
+(defmethod expand-entry ((entry integer) (spelling string))
+  (multiple-value-bind (class-info info) (decode-class-info-and-info entry)
+    (let* ((constructor (the function (second class-info)))
+           (base-suffix (ldb (byte +base-suffix-bits+ 0) info))
+           (base        (if (zerop base-suffix)
+                            spelling
+                            (subseq spelling 0 (- (length spelling)
+                                                  base-suffix))))
+           (info        (ldb (byte +info-bits+ +base-suffix-bits+) info)))
+      (funcall constructor info base))))
+
 ;;; `compact-node'
 
 (defclass compact-node (node) ())
 
 ;;; `compact-leaf-mixin', related types and leaf protocol methods
-
-(deftype compact-entry ()
-  'word)
 
 (defun %every-compact-entry (object)
   (and (typep object 'sequence) (every (a:of-type 'compact-entry) object)))
@@ -52,40 +116,20 @@
                     (string   string)
                     (suffix   (eql 0))
                     (node     compact-leaf-mixin))
-  (map-entries
-   (lambda (word)
-     ;; This is temporary: make an instance of the explicit base
-     ;; "sibling" class.
-     (let ((word (if (typep word 'implicit-base-mixin)
-                     (let* ((class-name  (class-name (class-of word)))
-                            (class-info  (find class-name *word-classes*
-                                               :test #'eq :key #'third))
-                            (new-class   (find-class (fourth class-info)))
-                            (base-suffix (base-suffix word))
-                            (base        (if (plusp base-suffix)
-                                             (subseq string 0 (- (length string)
-                                                                 base-suffix))
-                                             string)))
-                       (if (slot-exists-p (c2mop:class-prototype new-class) '%info)
-                           (let ((new-info (ldb (byte 29 +base-suffix-bits+)
-                                                (slot-value word '%info))))
-                             (make-instance new-class :info new-info
-                                                      :base base))
-                           (make-instance new-class :base base)))
-                     word)))
-       (funcall function word)))
-   node (%entries node)))
+  (map-entries (lambda (entry)
+                 (let ((word (expand-entry entry string)))
+                   (funcall function word)))
+               node (%entries node)))
 
 (defmethod compact-node-slots append ((node leaf-mixin) (depth integer))
-  (flet ((compact-entry (entries) entries))
-    (let ((compact-entries '()))
-      (map-entries (lambda (entry)
-                     (push (compact-entry entry) compact-entries))
-                   node (%entries node))
-      (let ((new-entries (if (a:length= 1 compact-entries)
-                             (first compact-entries)
-                             (coerce compact-entries 'vector))))
-        (list :entries new-entries)))))
+  (let ((compact-entries '()))
+    (map-entries (lambda (entry)
+                   (push (compact-entry entry) compact-entries))
+                 node (%entries node))
+    (let ((new-entries (if (a:length= 1 compact-entries)
+                           (first compact-entries)
+                           (coerce compact-entries 'vector))))
+      (list :entries new-entries))))
 
 ;;; `compact-interior-mixin'
 

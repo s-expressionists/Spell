@@ -26,6 +26,7 @@
   ()
   (:metaclass word-class))
 
+#-minimal-raw-trie
 (defmethod make-load-form ((object word) &optional environment)
   ;; Do not save slots that are stored in the `%info' bitfield slot.
   (let* ((class      (class-of object))
