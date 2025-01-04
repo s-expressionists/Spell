@@ -30,7 +30,11 @@
   (map nil function entries))
 
 (defmethod add-entry ((entry t) (node raw-leaf-mixin) (entries vector))
-  (concatenate (class-of entries) (list entry) entries))
+  (declare (type simple-vector entries))
+  (let ((new-entries (make-array (+ 1 (length entries)))))
+    (setf (aref new-entries 0)   entry
+          (subseq new-entries 1) entries)
+    new-entries))
 
 #-minimal-raw-trie
 (defmethod %lookup
@@ -93,7 +97,11 @@
 
 (defmethod add-child
     ((char character) (child t) (node raw-interior-mixin) (children vector))
-  (concatenate (class-of children) (list char child) children))
+  (let ((new-children (make-array (+ 2 (length children)))))
+    (setf (aref new-children 0)   char
+          (aref new-children 1)   child
+          (subseq new-children 2) children)
+    new-children))
 
 #-minimal-raw-trie
 (defmethod %lookup
@@ -107,7 +115,9 @@
          (child     (find-child string suffix node children)))
     (when (null child)
       (let ((character (aref string (- (length string) suffix))))
-        (setf child            (make-instance 'raw-node)
+        (setf child            (if (> suffix 1)
+                                   (make-instance 'raw-interior-node)
+                                   (make-instance 'raw-leaf-node))
               (%children node) (add-child character child node children))))
     (%insert object string (1- suffix) child)))
 
