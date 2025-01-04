@@ -11,6 +11,7 @@
                 :serial     t
                 :components ((:file "package")
                              (:file "protocol")
+                             (:file "strings")
                              (:file "text-file")
                              (:file "word")
                              (:file "spell")

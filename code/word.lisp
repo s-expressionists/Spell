@@ -85,5 +85,10 @@
 
 (defun word (spelling type &rest initargs &key &allow-other-keys)
   (declare (ignore spelling))
-  (let ((class (gethash type *word-types*)))
+  (let ((class    (gethash type *word-types*))
+        (initargs (loop :for (key value) :on initargs :by #'cddr
+                        :collect key
+                        :collect (if (stringp value)
+                                     (intern-string value)
+                                     value))))
     (apply #'make-instance class initargs)))

@@ -109,15 +109,19 @@
 (defmethod insert ((object t) (string string) (dictionary dictionary))
   (%insert object string (length string) (contents dictionary)))
 
+;;; Dictionary loading
+
 (defmethod load-dictionary ((source stream)
                             &key (into (make-instance 'dictionary)))
   (let ((count 0))
-    (map-dictionary-file-entries
-     (lambda (spelling type base &rest initargs)
-       (let ((word (apply #'word spelling type :base base initargs)))
-         (insert word spelling into))
-       (incf count))
-     source)
+    (with-string-interning ()
+      (map-dictionary-file-entries
+       (lambda (spelling type base &rest initargs)
+         (let ((spelling (intern-string spelling))
+               (word     (apply #'word spelling type :base base initargs)))
+           (insert word spelling into))
+         (incf count))
+       source))
     (incf (entry-count into) count)
     into))
 
