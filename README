@@ -8,14 +8,6 @@ an English dictionary is loaded and compiled into the resulting FASL file.
 For loading the full version:
 > (ql:quickload :spell)
 
-For loading the simple version:
-> (ql:quickload :spell/simple)
-
-The difference between the full and the simple version is that the simple
-version answers only "does this word occur in the English dictionary?" with
-a boolean value, while the full version returns a list of all word meanings
-associated with that string.
-
 Currently the only exported functions are #'ENGLISH-LOOKUP that accepts a
 string, and #'ENGLISH-CHECK-PARAGRAPH that checks a whole paragraph of text and
 returns a list of conses. Each cons represents a single word in the paragraph
@@ -27,3 +19,16 @@ SPELL> (english-lookup "horse")
 SPELL> (english-check-paragraph "In Polish, a horse is koń, and in German, it's
 das Pferd.")
 ((22 . 25) (47 . 50) (51 . 56))
+
+Backward Compatibility Notice
+
+The Spell library provides the spell/simple ASDF system. The
+difference between the full and the simple version used to be that the
+simple version answered only "does this word occur in the English
+dictionary?" with a boolean value, while the full version returns a
+list of all word meanings associated with that string. However, this
+difference no longer exists and the spell/simple system is now an
+alias for the spell system.
+
+The spell/simple system can still be loaded with:
+> (ql:quickload :spell/simple)
