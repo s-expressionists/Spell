@@ -19,7 +19,7 @@
 
 (defclass leaf-mixin ()
   ((%entries :accessor %entries
-             :initform '())))
+             :initform #())))
 
 (defmethod utilities.print-items:print-items append ((object leaf-mixin))
   (let ((entries '()))
@@ -28,11 +28,11 @@
                  object  (%entries object))
     `(((:entries (:after :children)) " entries: ~{~A~^ ~}" ,entries))))
 
-(defmethod map-entries ((function function) (node leaf-mixin) (entries list))
-  (mapc function entries))
+(defmethod map-entries ((function function) (node leaf-mixin) (entries vector))
+  (map nil function entries))
 
-(defmethod add-entry ((entry t) (node leaf-mixin) (entries list))
-  (list* entry entries))
+(defmethod add-entry ((entry t) (node leaf-mixin) (entries vector))
+  (concatenate (class-of entries) (list entry) entries))
 
 (defmethod %lookup
     ((function function) (string string) (suffix (eql 0)) (node leaf-mixin))
