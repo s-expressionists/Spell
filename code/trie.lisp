@@ -1,4 +1,4 @@
-(in-package #:spell)
+(cl:in-package #:spell)
 
 ;;; Internal protocols
 
@@ -107,57 +107,3 @@
 
 (defmethod add-child ((node t) (char character) (entries list))
   (acons char node entries))
-
-;;; Dictionary
-
-(defclass dictionary (utilities.print-items:print-items-mixin)
-  ((%contents    :accessor contents
-                 :initform (make-instance 'node))
-   (%entry-count :accessor entry-count
-                 :initform 0)))
-
-(defmethod make-load-form ((object dictionary) &optional environment)
-  (make-load-form-saving-slots object :environment environment))
-
-(defmethod utilities.print-items:print-items append ((object dictionary))
-  `((:entry-count "~:D entr~:@P" ,(entry-count object))))
-
-(defmethod lookup ((string string) (dictionary dictionary))
-  (assert (plusp (length string)))
-  (%lookup string (length string) (contents dictionary)))
-
-(defmethod insert ((object t) (string string) (dictionary dictionary))
-  (%insert object string (length string) (contents dictionary)))
-
-;;; Dictionary loading
-
-(defmethod load-dictionary ((source stream)
-                            &key (into (make-instance 'dictionary)))
-  (let ((count 0))
-    (with-string-interning ()
-      (map-dictionary-file-entries
-       (lambda (spelling type base &rest initargs)
-         (let* ((spelling (intern-string spelling))
-                (base     (intern-string base))
-                (word     (apply #'make-word spelling type base initargs)))
-           (insert word spelling into))
-         (incf count))
-       source))
-    (incf (entry-count into) count)
-    into))
-
-(defmethod load-dictionary ((source pathname) &rest args &key into)
-  (declare (ignore into))
-  (with-open-file (stream source)
-    (apply #'load-dictionary stream args)))
-
-(defmethod load-dictionary ((source string) &rest args &key into)
-  (declare (ignore into))
-  (apply #'load-dictionary (pathname source) args))
-
-(defmethod load-dictionary ((source sequence)
-                            &key (into (make-instance 'dictionary)))
-  (mapc (lambda (source)
-          (with-simple-restart (skip "Skip source ~A" source)
-            (apply #'load-dictionary source :into into)))
-        source))

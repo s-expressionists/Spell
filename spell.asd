@@ -21,8 +21,9 @@
                              (:file "word-class") ; metaclass
                              (:file "word-classes")
                              ;; Trie
-                             (:file "spell")
-                             ;; English dictionary
+                             (:file "trie")
+                             ;; Dictionary
+                             (:file "dictionary")
                              (:file "english"))))
 
   :in-order-to ((test-op (test-op "spell/test"))))
