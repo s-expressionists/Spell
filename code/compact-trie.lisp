@@ -37,11 +37,13 @@
     (values class-info info)))
 
 (defun encode-class-index+info (class info)
+  (declare (type (unsigned-byte #.+info-bits+) info))
   (let ((class-index (position (class-name class) *word-classes*
                                :key (lambda (cell)
                                       (if (subtypep class 'explicit-base-mixin)
                                           (fourth cell)
                                           (third cell))))))
+    (declare (type word-class-index class-index))
     (logior (ash info +word-class-index-bits+) class-index)))
 
 (deftype compact-entry ()
@@ -62,12 +64,14 @@
 
 (defmethod expand-entry ((entry cons) (spelling string))
   (destructuring-bind (class-index+info . base) entry
+    (declare (type class-index+info class-index+info))
     (multiple-value-bind (class-info info)
         (decode-class-info-and-info class-index+info)
       (let ((constructor (the function (second class-info))))
         (funcall constructor info base)))))
 
 (defmethod expand-entry ((entry integer) (spelling string))
+  (declare (type class-index+info entry))
   (multiple-value-bind (class-info info) (decode-class-info-and-info entry)
     (let* ((constructor (the function (second class-info)))
            (base-suffix (ldb (byte +base-suffix-bits+ 0) info))
@@ -186,6 +190,7 @@
 
 (defmethod map-children
     ((function function) (node compact-interior-mixin) (children vector))
+  (declare (type simple-vector children))
   (loop :for i     :below (length children) :by 2
         :for key   =      (aref children (+ i 0))
         :for child =      (aref children (+ i 1))
@@ -220,6 +225,7 @@
                          (suffix   integer)
                          (node     compact-interior-mixin)
                          (children vector))
+    (declare (type simple-vector children))
     (loop :with offset =      (- (length string) suffix)
           :for  i      :below (length children) :by 2
           :for  key    =      (aref children i)
