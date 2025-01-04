@@ -1,9 +1,15 @@
 (cl:in-package #:spell.test)
 
-(fiveam:def-suite* :spell.compare
+(fiveam:def-suite* :spell.english
   :in :spell)
 
-(test compare.english
+(test english.non-existing-word
+  "Test dictionary lookup with strings that are not existing words."
+  (is (null (spell:english-lookup "no-such-word")))
+  ;; A prefix of an existing word exercises a different code path.
+  (is (null (spell:english-lookup "fuc"))))
+
+(test english.compare
   "Compare dictionary data structure to ground truth from dictionary file."
   (let ((fiveam:*test-dribble* nil)
         (*print-right-margin*  80)
