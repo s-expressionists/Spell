@@ -143,7 +143,7 @@
   '(or child-key/character child-key/string))
 
 (deftype compact-child-cell ()
-  '(cons child-key compact-node))
+  '(cons child-key (or compact-node compact-entries)))
 
 (defun %every-compact-child-chell (object)
   (and (typep object 'sequence)
@@ -154,7 +154,8 @@
                     :for child = (aref object (+ i 1))
                     :always (and (typep key 'child-key)
                                  (typep child '(or null ; can happen temporarily while rebuilding from fasl
-                                                   node))))))))
+                                                   compact-node
+                                                   compact-entries))))))))
 
 (deftype vector-of-compact-child-cell ()
   '(and (simple-array t 1) (satisfies %every-compact-child-chell)))
@@ -281,11 +282,31 @@
           (values child key))
         (apply #'make-instance 'compact-interior-node initargs))))
 
-(defclass compact-leaf-node (compact-leaf-mixin compact-node) ())
+;;; We would normally define `compact-leaf-node' here, but there is no
+;;; `compact-leaf-node' class since `compact-node' for `raw-leaf-node'
+;;; returns the entries directly instead of wrapping them in a leaf
+;;; node.
+
+(defmethod %lookup ((function function)
+                    (string   string)
+                    (suffix   (eql 0))
+                    (node     t))
+  (let ((word (expand-entry node string)))
+    (funcall function word)))
+
+(defmethod %lookup ((function function)
+                    (string   string)
+                    (suffix   (eql 0))
+                    (node     vector))
+  (map nil (lambda (entry)
+             (let ((word (expand-entry entry string)))
+               (funcall function word)))
+       node))
 
 (defmethod compact-node ((node raw-leaf-node) (depth integer))
-  (apply #'make-instance 'compact-leaf-node
-         (compact-node-slots node depth)))
+  (let ((initargs (compact-node-slots node depth)))
+    (assert (a:length= 2 initargs))
+    (getf initargs :entries)))
 
 (defclass compact-interior-leaf-node (compact-interior-mixin
                                       compact-leaf-mixin
