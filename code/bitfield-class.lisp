@@ -49,12 +49,19 @@
 ;;; `effective-field-slot-definition'
 
 (defclass effective-field-slot-definition (c2mop:standard-effective-slot-definition)
-  ((%field  :initarg  :field
-            :reader   field)
+  ((%field  :accessor field)
    (%reader :type     function
             :accessor reader)
    (%writer :type     function
             :accessor writer)))
+
+;;; CCL does not support re-initializing slot definition
+;;; metaobjects. So we inject the allocation here.
+(defmethod initialize-instance :around
+    ((instance effective-field-slot-definition) &rest initargs &key)
+  (apply #'call-next-method instance
+         (list* :allocation :bitfield
+                (a:remove-from-plist initargs :allocation))))
 
 ;;; `bitfield-mixin'
 ;;;
@@ -95,20 +102,21 @@
         slots
         (let* ((fields     (let ((bitfield::*bitfield-position* 0))
                              (mapcar (lambda (slot)
-                                       (let* ((slot-for-type (field slot))
-                                              (field         (compute-slot-field
-                                                              slot-for-type)))
-                                         (reinitialize-instance slot :field field)
-                                         field))
+                                       (let ((slot-for-type (field slot)))
+                                         (setf (field slot)
+                                               (compute-slot-field
+                                                slot-for-type))))
                                      field-slots)))
                (total-size (bitfield:bitfield-slot-end (a:lastcar fields))))
           (mapc (lambda (slot)
                   (setf (values (reader slot) (writer slot))
                         (accessors-for-field (field slot) total-size)))
                 field-slots)
+          #+sbcl
           (let ((info-slot (find '%info slots :test #'eq
                                               :key  #'c2mop:slot-definition-name)))
-            (reinitialize-instance info-slot :type `(unsigned-byte ,total-size)))
+            (setf (c2mop:slot-definition-type info-slot)
+                  `(unsigned-byte ,total-size)))
           slots))))
 
 (defmethod c2mop:effective-slot-definition-class ((class bitfield-mixin)
@@ -130,8 +138,8 @@
                                '(cons (eql member)))
                         (first slot-definitions)
                         effective-slot)))
-          (reinitialize-instance effective-slot :allocation :bitfield
-                                                :field      slot))
+          (setf (field effective-slot) slot)
+          effective-slot)
         effective-slot)))
 
 ;;; Slot access
