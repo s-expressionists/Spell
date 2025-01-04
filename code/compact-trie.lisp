@@ -170,14 +170,20 @@
 (defmethod map-children
     ((function function) (node compact-interior-mixin) (children cons))
   (destructuring-bind (key . child) children
-    (funcall function key child)))
+    (multiple-value-bind (new-key new-child) (funcall function key child)
+      (when (and new-key new-child)
+        (setf (car children) new-key (cdr children) new-child)))))
 
 (defmethod map-children
     ((function function) (node compact-interior-mixin) (children vector))
   (loop :for i     :below (length children) :by 2
         :for key   =      (aref children (+ i 0))
         :for child =      (aref children (+ i 1))
-        :do (funcall function key child)))
+        :do (multiple-value-bind (new-key new-child)
+                (funcall function key child)
+              (when (and new-key new-child)
+                (setf (aref children (+ i 0)) new-key
+                      (aref children (+ i 1)) new-child)))))
 
 (macrolet ((consider-child-cell (string suffix offset key child-expression)
              `(etypecase ,key
@@ -242,7 +248,8 @@
                  (cons new-key new-child)))))
     (let ((compact-children '()))
       (map-children (lambda (key child)
-                      (push (compact-child key child) compact-children))
+                      (push (compact-child key child) compact-children)
+                      nil)
                     node (%children node))
       (let* ((child-count  (length compact-children))
              (new-children
