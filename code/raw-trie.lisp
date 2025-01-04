@@ -81,10 +81,13 @@
         :for child =      (aref children (+ i 1))
         :do (funcall function key child)))
 
-(defmethod find-child
-    ((char character) (node raw-interior-mixin) (children vector))
-  (loop :for i   :below (length children) :by 2
-        :for key =      (aref children i)
+(defmethod find-child ((string   string)
+                       (suffix   integer)
+                       (node     raw-interior-mixin)
+                       (children vector))
+  (loop :with char =      (aref string (- (length string) suffix))
+        :for i     :below (length children) :by 2
+        :for key   =      (aref children i)
         :when (char= key char)
           :do (return (aref children (1+ i)))))
 
@@ -95,19 +98,17 @@
 #-minimal-raw-trie
 (defmethod %lookup
     ((function function) (string string) (suffix integer) (node raw-interior-mixin))
-  (let* ((character (aref string (- (length string) suffix)))
-         (child     (find-child character node (%children node))))
-    (when (not (null child))
-      (%lookup function string (1- suffix) child))))
+  (a:when-let ((child (find-child string suffix node (%children node))))
+    (%lookup function string (1- suffix) child)))
 
 (defmethod %insert
     ((object t) (string string) (suffix integer) (node raw-interior-mixin))
-  (let* ((character (aref string (- (length string) suffix)))
-         (children  (%children node))
-         (child     (find-child character node children)))
+  (let* ((children  (%children node))
+         (child     (find-child string suffix node children)))
     (when (null child)
-      (setf child            (make-instance 'raw-node)
-            (%children node) (add-child character child node children)))
+      (let ((character (aref string (- (length string) suffix))))
+        (setf child            (make-instance 'raw-node)
+              (%children node) (add-child character child node children))))
     (%insert object string (1- suffix) child)))
 
 ;;; Concrete node classes

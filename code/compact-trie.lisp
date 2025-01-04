@@ -89,8 +89,14 @@
 
 ;;; `compact-interior-mixin'
 
-(deftype child-key ()
+(deftype child-key/character ()
   'character)
+
+(deftype child-key/string ()
+  'simple-string)
+
+(deftype child-key ()
+  '(or child-key/character child-key/string))
 
 (deftype compact-child-cell ()
   '(cons child-key compact-node))
@@ -128,31 +134,67 @@
         :for child =      (aref children (+ i 1))
         :do (funcall function key child)))
 
-(defmethod find-child
-    ((char character) (node compact-interior-mixin) (children cons))
-  (destructuring-bind (key . child) children
-    (when (char= key char)
-      child)))
+(macrolet ((consider-child-cell (string suffix offset key child-expression)
+             `(etypecase ,key
+                (child-key/character
+                 (when (char= ,key (aref ,string ,offset))
+                   (return (values ,child-expression 1))))
+                (child-key/string
+                 (let* ((length (length ,key))
+                        (end    (+ ,offset length)))
+                   (when (and (<= length ,suffix)
+                              (string= ,string ,key :start1 ,offset :end1 end))
+                     (return (values ,child-expression length))))))))
 
-(defmethod find-child
-    ((char character) (node compact-interior-mixin) (children vector))
-  (loop :for i   :below (length children) :by 2
-        :for key =      (aref children i)
-        :when (char= key char)
-          :do (return (aref children (1+ i)))))
+  (defmethod find-child ((string   string)
+                         (suffix   integer)
+                         (node     compact-interior-mixin)
+                         (children cons))
+    (let ((offset (- (length string) suffix))
+          (key    (car children)))
+      (block nil
+        (consider-child-cell string suffix offset key (cdr children)))))
+
+  (defmethod find-child ((string   string)
+                         (suffix   integer)
+                         (node     compact-interior-mixin)
+                         (children vector))
+    (loop :with offset =      (- (length string) suffix)
+          :for  i      :below (length children) :by 2
+          :for  key    =      (aref children i)
+          :do (consider-child-cell
+               string suffix offset key (aref children (+ i 1))))))
 
 (defmethod %lookup ((function function)
                     (string   string)
                     (suffix   integer)
                     (node     compact-interior-mixin))
-  (let* ((character (aref string (- (length string) suffix)))
-         (child     (find-child character node (%children node))))
+  (multiple-value-bind (child progress)
+      (find-child string suffix node (%children node))
     (when (not (null child))
-      (%lookup function string (1- suffix) child))))
+      (%lookup function string (- suffix progress) child))))
 
 (defmethod compact-node-slots append ((node raw-interior-mixin) (depth integer))
-  (flet ((compact-child (key child)
-           (cons key (compact-node child (1+ depth)))))
+  (labels ((make-key (key child-key)
+             (intern-string
+              (concatenate 'string (string key) (string child-key))))
+           (compact-child (key child)
+             ;; NEW-CHILD-KEY is non-NIL when the ancestors of
+             ;; NEW-CHILD could be omitted because NEW-CHILD (and
+             ;; potentially its ancestors) had no siblings. In that
+             ;; case, coerce the whole path of keys from NODE to
+             ;; NEW-CHILD into a string. The lookup will skip multiple
+             ;; levels in one step compared to the raw trie.
+             (multiple-value-bind (new-child new-child-key)
+                 (compact-node child (1+ depth))
+               (assert (not (null new-child)))
+               (let ((new-key (cond ((not (null new-child-key))
+                                     (make-key key new-child-key))
+                                    ((stringp key)
+                                     (intern-string key))
+                                    (t
+                                     key))))
+                 (cons new-key new-child)))))
     (let ((compact-children '()))
       (map-children (lambda (key child)
                       (push (compact-child key child) compact-children))
@@ -184,8 +226,16 @@
   nil)
 
 (defmethod compact-node ((node raw-interior-node) (depth integer))
-  (apply #'make-instance 'compact-interior-node
-         (compact-node-slots node depth)))
+  (let* ((initargs (compact-node-slots node depth))
+         (children (getf initargs :children)))
+    (if (and (not (zerop depth)) ; can't omit the root node
+             (typep children 'compact-child-cell))
+        ;; If NODE has only a single child, return that child and its
+        ;; key but omit NODE so that the caller can create a
+        ;; compressed path to CHILD.
+        (destructuring-bind (key . child) children
+          (values child key))
+        (apply #'make-instance 'compact-interior-node initargs))))
 
 (defclass compact-leaf-node (compact-leaf-mixin compact-node) ())
 

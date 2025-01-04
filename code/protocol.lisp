@@ -30,6 +30,6 @@
 
 (defgeneric map-children (function node children))
 
-(defgeneric find-child (char node children))
+(defgeneric find-child (string suffix node children))
 
 (defgeneric add-child (char child node children))

@@ -30,7 +30,8 @@
     (%insert object string (length string) root)))
 
 (defmethod compact ((dictionary dictionary))
-  (setf (contents dictionary) (compact-node (contents dictionary) 0))
+  (setf (contents dictionary) (with-string-interning ()
+                                (compact-node (contents dictionary) 0)))
   dictionary)
 
 ;;; Dictionary loading
