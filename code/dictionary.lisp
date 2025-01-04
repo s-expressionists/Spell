@@ -34,6 +34,12 @@
                                 (compact-node (contents dictionary) 0)))
   dictionary)
 
+(defmethod share-structure ((dictionary dictionary) &rest args &key depth-limit)
+  (declare (ignore depth-limit))
+  (setf (contents dictionary) (apply #'share-structure (contents dictionary)
+                                     args))
+  dictionary)
+
 ;;; Dictionary loading
 
 (defmethod load-dictionary ((source stream)

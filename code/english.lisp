@@ -24,6 +24,8 @@
                                 :initial-value (make-instance 'dictionary))))
         (note "Compressing dictionary")
         (setf dictionary (compact dictionary))
+        (note "Sharing structure")
+        (setf dictionary (share-structure dictionary))
         (note "Will dump dictionary with ~:_~:D entr~:@P"
               (entry-count dictionary))
         dictionary))))
