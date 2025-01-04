@@ -126,9 +126,17 @@
     (map-entries (lambda (entry)
                    (push (compact-entry entry) compact-entries))
                  node (%entries node))
-    (let ((new-entries (if (a:length= 1 compact-entries)
-                           (first compact-entries)
-                           (coerce compact-entries 'vector))))
+    (let ((new-entries
+            (cond ((a:length= 1 compact-entries)
+                   (first compact-entries))
+                  ((every (a:of-type 'unsigned-byte) compact-entries)
+                   (let ((bit-count (reduce #'max compact-entries
+                                            :key #'integer-length)))
+                     (make-array (length compact-entries)
+                                 :element-type     `(unsigned-byte ,bit-count)
+                                 :initial-contents compact-entries)))
+                  (t
+                   (coerce compact-entries 'vector)))))
       (list :entries new-entries))))
 
 ;;; `compact-interior-mixin'
@@ -143,7 +151,9 @@
   '(or child-key/character child-key/string))
 
 (deftype compact-child-cell ()
-  '(cons child-key (or compact-node compact-entries)))
+  '(cons child-key (or null ; can happen temporarily when rebuilding from fasl
+                       compact-node
+                       compact-entries)))
 
 (defun %every-compact-child-chell (object)
   (and (typep object 'sequence)
