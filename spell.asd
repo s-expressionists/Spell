@@ -5,12 +5,15 @@
            "Jan Moringen <jan.moringen@posteo.de>")
   :license "BSD"
   :version (:read-file-form "data/version-string.sexp")
-  :depends-on ("alexandria"
-               "utilities.print-items")
+  :depends-on ("closer-mop"
+               "alexandria"
+               "utilities.print-items"
+               "bitfield")
   :components ((:module     "code"
                 :serial     t
                 :components ((:file "package")
                              (:file "protocol")
+                             (:file "bitfield-class")
                              (:file "strings")
                              (:file "text-file")
                              (:file "word")
