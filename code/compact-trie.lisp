@@ -27,7 +27,7 @@
   '(and (simple-array * 1) (satisfies %every-compact-entry)))
 
 (deftype compact-entries ()
-  'vector-of-compact-entry)
+  '(or compact-entry vector-of-compact-entry))
 
 (defclass compact-leaf-mixin (leaf-mixin)
   ((%entries :initarg :entries
@@ -39,6 +39,10 @@
     (map-entries (lambda (entry) (push entry entries))
                  object  (%entries object))
     `(((:entries (:after :children)) " entries: ~{~A~^ ~}" ,entries))))
+
+(defmethod map-entries
+    ((function function) (node compact-leaf-mixin) (entries t))
+  (funcall function entries))
 
 (defmethod map-entries
     ((function function) (node compact-leaf-mixin) (entries vector))
@@ -74,11 +78,14 @@
 
 (defmethod compact-node-slots append ((node leaf-mixin) (depth integer))
   (flet ((compact-entry (entries) entries))
-    (let ((new-entries '()))
+    (let ((compact-entries '()))
       (map-entries (lambda (entry)
-                     (push (compact-entry entry) new-entries))
+                     (push (compact-entry entry) compact-entries))
                    node (%entries node))
-      (list :entries (coerce new-entries 'vector)))))
+      (let ((new-entries (if (a:length= 1 compact-entries)
+                             (first compact-entries)
+                             (coerce compact-entries 'vector))))
+        (list :entries new-entries)))))
 
 ;;; `compact-interior-mixin'
 
