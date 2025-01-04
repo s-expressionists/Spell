@@ -4,7 +4,7 @@
 
 (defclass dictionary (utilities.print-items:print-items-mixin)
   ((%contents    :accessor contents
-                 :initform (make-instance 'node))
+                 :initform (make-instance 'raw-node))
    (%entry-count :accessor entry-count
                  :initform 0)))
 
@@ -24,7 +24,14 @@
     result))
 
 (defmethod insert ((object t) (string string) (dictionary dictionary))
-  (%insert object string (length string) (contents dictionary)))
+  (let ((root (contents dictionary)))
+    (when (typep root 'compact-node)
+      (error "~@<Cannot insert into compacted dictionary.~@:>"))
+    (%insert object string (length string) root)))
+
+(defmethod compact ((dictionary dictionary))
+  (setf (contents dictionary) (compact-node (contents dictionary) 0))
+  dictionary)
 
 ;;; Dictionary loading
 

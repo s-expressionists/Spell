@@ -22,6 +22,8 @@
       (let ((dictionary (reduce #'load-file '("data/english.txt"
                                               "data/english-additions.txt")
                                 :initial-value (make-instance 'dictionary))))
+        (note "Compressing dictionary")
+        (setf dictionary (compact dictionary))
         (note "Will dump dictionary with ~:_~:D entr~:@P"
               (entry-count dictionary))
         dictionary))))

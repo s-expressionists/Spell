@@ -22,6 +22,8 @@
                              (:file "word-classes")
                              ;; Trie
                              (:file "trie")
+                             (:file "raw-trie")
+                             (:file "compact-trie")
                              ;; Dictionary
                              (:file "dictionary")
                              (:file "english"))))
