@@ -8,7 +8,8 @@
   (:import-from #:fiveam
    #:test
    #:is
-   #:is-true)
+   #:is-true
+   #:is-false)
 
   (:export
    #:run-tests))

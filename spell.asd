@@ -5,7 +5,8 @@
            "Jan Moringen <jan.moringen@posteo.de>")
   :license "BSD"
   :version (:read-file-form "data/version-string.sexp")
-  :depends-on ("alexandria")
+  :depends-on ("alexandria"
+               "utilities.print-items")
   :components ((:module     "code"
                 :serial     t
                 :components ((:file "package")

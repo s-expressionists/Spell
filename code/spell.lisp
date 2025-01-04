@@ -8,7 +8,7 @@
 
 ;;; Node classes
 
-(defclass node () ())
+(defclass node (utilities.print-items:print-items-mixin) ())
 
 (defmethod make-load-form ((object node) &optional environment)
   (make-load-form-saving-slots object :environment environment))
@@ -24,6 +24,12 @@
 (defclass leaf-mixin ()
   ((%entries :initform '() :initarg :entries :accessor entries)))
 
+(defmethod utilities.print-items:print-items append ((object leaf-mixin))
+  (let ((entries (map 'list (lambda (entry)
+                              (class-name (class-of entry)))
+                      (entries object))))
+    `(((:entries (:after :children)) " entries: ~{~A~^ ~}" ,entries))))
+
 (defmethod %lookup ((string string) (suffix (eql 0)) (node leaf-mixin))
   (entries node))
 
@@ -38,6 +44,10 @@
 
 (defclass interior-mixin ()
   ((%children :initform '() :initarg :children :accessor children)))
+
+(defmethod utilities.print-items:print-items append ((object interior-mixin))
+  (let ((child-count (length (children object))))
+    `((:children "~D ~:*child~[ren~;~:;ren~]" ,child-count))))
 
 (defmethod %lookup ((string string) (suffix integer) (node interior-mixin))
   (let* ((character (aref string (- (length string) suffix)))
@@ -80,7 +90,7 @@
 
 ;;; Dictionary
 
-(defclass dictionary ()
+(defclass dictionary (utilities.print-items:print-items-mixin)
   ((%contents    :accessor contents
                  :initform (make-instance 'node))
    (%entry-count :accessor entry-count
@@ -88,6 +98,9 @@
 
 (defmethod make-load-form ((object dictionary) &optional environment)
   (make-load-form-saving-slots object :environment environment))
+
+(defmethod utilities.print-items:print-items append ((object dictionary))
+  `((:entry-count "~:D entr~:@P" ,(entry-count object))))
 
 (defmethod lookup ((string string) (dictionary dictionary))
   (assert (plusp (length string)))

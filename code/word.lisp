@@ -2,11 +2,14 @@
 
 (defparameter *word-types* (make-hash-table :test #'eq))
 
-(defclass word ()
+(defclass word (utilities.print-items:print-items-mixin)
   ((%base :initarg :base :reader base)))
 
 (defmethod make-load-form ((object word) &optional environment)
   (make-load-form-saving-slots object :environment environment))
+
+(defmethod utilities.print-items:print-items append ((object word))
+  `((:base "~S" ,(base object))))
 
 (defmacro defword (class-name &body body)
   (let ((type (intern (symbol-name class-name) :keyword)))
