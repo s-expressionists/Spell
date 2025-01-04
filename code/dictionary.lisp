@@ -15,9 +15,13 @@
   `((:entry-count "~:D entr~:@P" ,(entry-count object))))
 
 (defmethod lookup ((string string) (dictionary dictionary))
-  (let ((length (length string)))
+  (let ((length (length string))
+        (result '()))
     (check-type length (integer 1) "Query string must not be empty")
-    (%lookup string length (contents dictionary))))
+    (%lookup (lambda (word)
+               (push word result))
+             string length (contents dictionary))
+    result))
 
 (defmethod insert ((object t) (string string) (dictionary dictionary))
   (%insert object string (length string) (contents dictionary)))
