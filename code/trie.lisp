@@ -73,7 +73,9 @@
 
 (defclass interior-mixin ()
   ((%children :accessor %children
-              :initform '())))
+              :initform #())))
+
+;;; Child node access methods
 
 (defmethod utilities.print-items:print-items append ((object interior-mixin))
   (let ((child-count 0))
@@ -84,18 +86,22 @@
     `((:children "~D ~:*child~[ren~;~:;ren~]" ,child-count))))
 
 (defmethod map-children
-    ((function function) (node interior-mixin) (children list))
-  (mapc (lambda (cell)
-          (destructuring-bind (key . child) cell
-            (funcall function key child)))
-        children))
+    ((function function) (node interior-mixin) (children vector))
+  (loop :for i     :below (length children) :by 2
+        :for key   =      (aref children i)
+        :for child =      (aref children (1+ i))
+        :do (funcall function key child)))
 
-(defmethod find-child ((char character) (node interior-mixin) (children list))
-  (cdr (assoc char children)))
+(defmethod find-child
+    ((char character) (node interior-mixin) (children vector))
+  (loop :for i   :below (length children) :by 2
+        :for key =      (aref children i)
+        :when (char= key char)
+          :do (return (aref children (1+ i)))))
 
 (defmethod add-child
-    ((char character) (child t) (node interior-mixin) (children list))
-  (acons char child children))
+    ((char character) (child t) (node interior-mixin) (children vector))
+  (concatenate (class-of children) (list char child) children))
 
 (defmethod %lookup
     ((function function) (string string) (suffix integer) (node interior-mixin))
