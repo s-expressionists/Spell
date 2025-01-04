@@ -15,16 +15,6 @@
 
 ;;; Entries
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defconstant +info-bits+
-    (flet ((max-info (class-name)
-             (reduce #'max (fields (find-class class-name))
-                     :key           #'bitfield:bitfield-slot-end
-                     :initial-value 0)))
-      (loop :for (nil nil class1 class2) :across *word-classes*
-            :when (not (null class1))
-            :maximizing (max (max-info class1) (max-info class2))))))
-
 (deftype class-index+info ()
   `(unsigned-byte ,(+ +word-class-index-bits+ +info-bits+)))
 

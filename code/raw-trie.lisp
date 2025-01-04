@@ -14,6 +14,20 @@
 
 ;;; `raw-leaf-mixin' class and leaf node protocol methods
 
+;;; This definition is also used by the compact trie.  This definition
+;;; cannot go into word-classes.lisp (where it would logically fit)
+;;; because then it would potentially be evaluated too early, namely
+;;; before the word classes from which the value is computed get
+;;; registered.
+(defconstant +info-bits+
+  (flet ((max-info (class-name)
+           (reduce #'max (fields (find-class class-name))
+                   :key           #'bitfield:bitfield-slot-end
+                   :initial-value 0)))
+    (loop :for (nil nil class1 class2) :across *word-classes*
+          :when (not (null class1))
+          :maximizing (max (max-info class1) (max-info class2)))))
+
 (defclass raw-leaf-mixin (leaf-mixin)
   ((%entries :type   simple-vector
              :writer (setf %entries))))
@@ -55,7 +69,9 @@
                                                                  base-suffix))
                                              string)))
                        (if (slot-exists-p (c2mop:class-prototype new-class) '%info)
-                           (let ((new-info (ldb (byte 29 +base-suffix-bits+)
+                           (let ((new-info (ldb (byte (- +info-bits+
+                                                         +base-suffix-bits+)
+                                                      +base-suffix-bits+)
                                                 (slot-value word '%info))))
                              (make-instance new-class :info new-info
                                                       :base base))
