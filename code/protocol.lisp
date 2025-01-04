@@ -1,4 +1,4 @@
-(in-package #:spell)
+(cl:in-package #:spell)
 
 ;;; Dictionary protocol
 
@@ -10,10 +10,26 @@
 
 (defgeneric load-dictionary (source &key into))
 
-;;; Trie node protocol
+;;; Trie node protocols
 
-(defgeneric entries (node))
+;;; Lookup protocol
 
-(defgeneric find-child (char entries))
+(defgeneric %lookup (function string suffix node))
 
-(defgeneric add-child (node char entries))
+;;; Insert protocol
+
+(defgeneric %insert (object string suffix node))
+
+;;; Leaf node protocol
+
+(defgeneric map-entries (function node entries))
+
+(defgeneric add-entry (entry node entries))
+
+;;; Interior node protocol
+
+(defgeneric map-children (function node children))
+
+(defgeneric find-child (string suffix node children))
+
+(defgeneric add-child (char child node children))

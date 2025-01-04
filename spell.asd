@@ -5,14 +5,28 @@
            "Jan Moringen <jan.moringen@posteo.de>")
   :license "BSD"
   :version (:read-file-form "data/version-string.sexp")
-  :depends-on ("alexandria")
+  :depends-on ("closer-mop"
+               "alexandria"
+               "utilities.print-items"
+               "bitfield")
   :components ((:module     "code"
                 :serial     t
                 :components ((:file "package")
                              (:file "protocol")
+                             ;; Utilities
+                             (:file "bitfield-class")
+                             (:file "strings")
                              (:file "text-file")
-                             (:file "word")
-                             (:file "spell")
+                             ;; Words
+                             (:file "word-class") ; metaclass
+                             (:file "word-classes")
+                             ;; Trie
+                             (:file "trie")
+                             (:file "raw-trie")
+                             (:file "compact-trie")
+                             (:file "shared-trie")
+                             ;; Dictionary
+                             (:file "dictionary")
                              (:file "english"))))
 
   :in-order-to ((test-op (test-op "spell/test"))))
@@ -40,6 +54,7 @@
   :components  ((:module     "test"
                  :serial     t
                  :components ((:file "package")
+                              (:file "utilities")
                               (:file "english"))))
 
   :perform     (test-op (operation component)
