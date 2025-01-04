@@ -92,6 +92,9 @@
 (deftype child-key ()
   'character)
 
+(deftype compact-child-cell ()
+  '(cons child-key compact-node))
+
 (defun %every-compact-child-chell (object)
   (and (typep object 'sequence)
        (let ((length (length object)))
@@ -107,11 +110,16 @@
   '(and (simple-array t 1) (satisfies %every-compact-child-chell)))
 
 (deftype compact-child-cells ()
-  'vector-of-compact-child-cell)
+  '(or compact-child-cell vector-of-compact-child-cell))
 
 (defclass compact-interior-mixin (interior-mixin)
   ((%children :initarg  :children
               :type     compact-child-cells)))
+
+(defmethod map-children
+    ((function function) (node compact-interior-mixin) (children cons))
+  (destructuring-bind (key . child) children
+    (funcall function key child)))
 
 (defmethod map-children
     ((function function) (node compact-interior-mixin) (children vector))
@@ -119,6 +127,12 @@
         :for key   =      (aref children (+ i 0))
         :for child =      (aref children (+ i 1))
         :do (funcall function key child)))
+
+(defmethod find-child
+    ((char character) (node compact-interior-mixin) (children cons))
+  (destructuring-bind (key . child) children
+    (when (char= key char)
+      child)))
 
 (defmethod find-child
     ((char character) (node compact-interior-mixin) (children vector))
@@ -143,13 +157,20 @@
       (map-children (lambda (key child)
                       (push (compact-child key child) compact-children))
                     node (%children node))
-      ;; Sorting is essential for the structure sharing optimization.
-      (setf compact-children (sort compact-children #'string< :key #'car))
-      (let ((new-children (make-array (* 2 (length compact-children)))))
-        (loop :for (key . child) :in compact-children
-              :for i :from 0 :by 2
-              :do (setf (aref new-children (+ i 0)) key
-                        (aref new-children (+ i 1)) child))
+      (let* ((child-count  (length compact-children))
+             (new-children
+               (if (= child-count 1)
+                   (first compact-children)
+                   (let ((new-children (make-array (* 2 child-count)))
+                         (sorted       (sort compact-children #'string<
+                                             :key #'car)))
+                     ;; Sorting is essential for the structure sharing
+                     ;; optimization.
+                     (loop :for (key . child) :in sorted
+                           :for i :from 0 :by 2
+                           :do (setf (aref new-children (+ i 0)) key
+                                     (aref new-children (+ i 1)) child))
+                     new-children))))
         (list :children new-children)))))
 
 ;;; Concrete node classes
