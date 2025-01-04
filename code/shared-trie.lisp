@@ -4,7 +4,7 @@
 
 (defgeneric share-structure (node &key depth-limit))
 
-(defgeneric share-key (node)
+(defgeneric share-key (node index)
   (:method-combination append))
 
 (defgeneric index-node (node index &key depth-limit))
@@ -14,7 +14,7 @@
 ;;; Top-level method
 
 (defmethod share-structure ((node compact-node) &key (depth-limit 3))
-  (let ((index (make-hash-table :test #'equal)))
+  (let ((index (make-instance 'share-index)))
     ;; Index sub-trees of depth less than DEPTH-LIMIT. The DEPTH-LIMIT
     ;; limits the space needed for the index and the time for
     ;; computing "share keys".
@@ -25,38 +25,47 @@
 
 ;;; Keys and indexing
 
+(defclass share-index ()
+  ((%key->node :reader   key->node
+               :initform (make-hash-table :test #'equal))
+   (%node->key :reader   node->key
+               :initform (make-hash-table :test #'eq))))
+
+(defmethod share-key :around ((node t) (index share-index))
+  (a:ensure-gethash node (node->key index) (call-next-method)))
+
 ;;; This function is called for node objects that are instances of
 ;;; subclasses of `interior-mixin' since leaf nodes are replaced with
 ;;; cons-based structures by `compact'.
-(defmethod share-key append ((node compact-interior-mixin))
+(defmethod share-key append ((node compact-interior-mixin) (index share-index))
   (let ((result '()))
     (map-children (lambda (key child)
-                    (push (cons key (etypecase child
-                                      (compact-node
-                                       (share-key child))
-                                      (compact-entry
-                                       child)
-                                      (vector-of-compact-entry
-                                       (coerce child 'list))))
-                          result)
+                    (setf result (list* key (typecase child
+                                              (compact-node
+                                               (share-key child index))
+                                              (compact-entry
+                                               child)
+                                              (t ; `vector-of-compact-entry'
+                                               (coerce child 'list)))
+                                        result))
                     nil)
                   node (%children node))
     result))
 
-(defmethod share-key append ((node compact-leaf-mixin))
+(defmethod share-key append ((node compact-leaf-mixin) (index share-index))
   (let ((result '()))
     (map-entries (lambda (entry) (push entry result))
                  node (%entries node))
     result))
 
 (defun find-node (node index)
-  (let* ((key   (share-key node))
-         (value (gethash key index)))
-    (when (and value (not (eq node value)))
+  (a:when-let* ((key   (gethash node (node->key index)))
+                (value (gethash key (key->node index))))
+    (when (not (eq node value))
       value)))
 
 (defun register-node (node index)
-  (a:ensure-gethash (share-key node) index node))
+  (a:ensure-gethash (share-key node index) (key->node index) node))
 
 ;;; Phase 1
 
