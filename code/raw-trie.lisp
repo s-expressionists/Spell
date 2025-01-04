@@ -27,6 +27,7 @@
 
 (defmethod map-entries
     ((function function) (node raw-leaf-mixin) (entries vector))
+  (declare (type simple-vector entries))
   (map nil function entries))
 
 (defmethod add-entry ((entry t) (node raw-leaf-mixin) (entries vector))
@@ -80,6 +81,7 @@
 
 (defmethod map-children
     ((function function) (node raw-interior-mixin) (children vector))
+  (declare (type simple-vector children))
   (loop :for i     :below (length children) :by 2
         :for key   =      (aref children (+ i 0))
         :for child =      (aref children (+ i 1))
@@ -89,6 +91,7 @@
                        (suffix   integer)
                        (node     raw-interior-mixin)
                        (children vector))
+  (declare (type simple-vector children))
   (loop :with char =      (aref string (- (length string) suffix))
         :for i     :below (length children) :by 2
         :for key   =      (aref children i)
@@ -97,6 +100,7 @@
 
 (defmethod add-child
     ((char character) (child t) (node raw-interior-mixin) (children vector))
+  (declare (type simple-vector children))
   (let ((new-children (make-array (+ 2 (length children)))))
     (setf (aref new-children 0)   char
           (aref new-children 1)   child
