@@ -32,19 +32,9 @@
   :in-order-to ((test-op (test-op "spell/test"))))
 
 (defsystem "spell/simple"
-  :description "Spellchecking package for Common Lisp - simple version"
-  :author ("Robert Strandh <robert.strandh@gmail.com>"
-           "Michał \"phoe\" Herda <phoe@disroot.org>"
-           "Jan Moringen <jan.moringen@posteo.de>")
-  :license "BSD"
-  :version (:read-file-form "data/version-string.sexp")
-  :components ((:module     "code"
-                :serial     t
-                :components ((:file "package")
-                             (:file "protocol")
-                             (:file "simple")
-                             (:file "spell")
-                             (:file "english")))))
+  :description "Identical to \"spell\". Exists for backward compatibility."
+  :version     (:read-file-form "data/version-string.sexp")
+  :depends-on  ((:version "spell" (:read-file-form "data/version-string.sexp"))))
 
 (defsystem "spell/test"
   :description "Unit tests for the spell system."

@@ -15,16 +15,6 @@
 
 ;;; Entries
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defconstant +info-bits+
-    (flet ((max-info (class-name)
-             (reduce #'max (fields (find-class class-name))
-                     :key           #'bitfield:bitfield-slot-end
-                     :initial-value 0)))
-      (loop :for (nil nil class1 class2) :across *word-classes*
-            :when (not (null class1))
-            :maximizing (max (max-info class1) (max-info class2))))))
-
 (deftype class-index+info ()
   `(unsigned-byte ,(+ +word-class-index-bits+ +info-bits+)))
 
@@ -154,10 +144,13 @@
 (deftype child-key ()
   '(or child-key/character child-key/string))
 
+(deftype compact-child-value ()
+  '(or null ; can happen temporarily when rebuilding from fasl
+       compact-node
+       compact-entries))
+
 (deftype compact-child-cell ()
-  '(cons child-key (or null ; can happen temporarily when rebuilding from fasl
-                       compact-node
-                       compact-entries)))
+  '(cons child-key compact-child-value))
 
 (defun %every-compact-child-chell (object)
   (and (typep object 'sequence)
@@ -167,9 +160,7 @@
                     :for key   = (aref object (+ i 0))
                     :for child = (aref object (+ i 1))
                     :always (and (typep key 'child-key)
-                                 (typep child '(or null ; can happen temporarily while rebuilding from fasl
-                                                   compact-node
-                                                   compact-entries))))))))
+                                 (typep child 'compact-child-value)))))))
 
 (deftype vector-of-compact-child-cell ()
   '(and (simple-array t 1) (satisfies %every-compact-child-chell)))

@@ -1,0 +1,65 @@
+#+TITLE: SPELL: spellchecking library for Common Lisp.
+
+* Introduction
+
+  SPELL is a spellchecking library for Common Lisp.
+
+  It is made available under the BSD license.
+
+  Loading the ~spell~ system may initially take up to between, say, 3
+  and 60 seconds (depending on the machine and CL implementation) as
+  an English dictionary is loaded and compiled into the resulting FASL
+  file.
+
+  For loading the ~spell~ system, use
+
+  #+begin_src lisp
+    (ql:quickload "spell")
+  #+end_src
+
+  Currently the only exported functions are ~spell:english-lookup~
+  that accepts a string, and ~spell:english-check-paragraph~ that
+  checks a whole paragraph of text and returns a list of conses. Each
+  cons represents a single word in the paragraph which has failed
+  dictionary lookup, with the ~car~ and ~cdr~ being offsets in the
+  original string outlining the word.
+
+  #+begin_src lisp :exports both
+    (spell:english-lookup "horse")
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  (#<EXPLICIT-BASE-VERB #1="horse" person:ANY number:ANY tense:NIL negative:NIL contraction:NIL strength:WEAK infinitive:SELF {1001089AA3}>
+   #<EXPLICIT-BASE-NOUN #1# number:SINGULAR case:NIL gender:NIL {1001089A73}>)
+  #+end_example
+
+  #+begin_src lisp :exports both
+    (spell:english-check-paragraph "In Polish, a horse is koń, and in German, it's
+    das Pferd.")
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+    ((22 . 25) (47 . 50) (51 . 56))
+  #+end_example
+
+* Backward Compatibility Notice
+
+  The SPELL library provides the ~spell/simple~ ASDF system. The
+  difference between the full and the simple version /used to be/ that
+  the simple version answered only "does this word occur in the
+  English dictionary?" with a boolean value, while the full version
+  returns a list of all word meanings associated with that
+  string. However, this difference no longer exists and the
+  ~spell/simple~ system is now an alias for the ~spell~ system.
+
+  The ~spell/simple~ system can still be loaded with
+
+  #+begin_src lisp
+    (ql:quickload "spell/simple")
+  #+end_src
+
+# Local Variables:
+# eval: (load-library 'ob-lisp)
+# End:
