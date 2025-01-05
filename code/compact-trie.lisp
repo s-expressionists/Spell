@@ -152,7 +152,7 @@
 (deftype compact-child-cell ()
   '(cons child-key compact-child-value))
 
-(defun %every-compact-child-chell (object)
+(defun %every-compact-child-cell (object)
   (and (typep object 'sequence)
        (let ((length (length object)))
          (and (zerop (mod length 2))
@@ -163,7 +163,7 @@
                                  (typep child 'compact-child-value)))))))
 
 (deftype vector-of-compact-child-cell ()
-  '(and (simple-array t 1) (satisfies %every-compact-child-chell)))
+  '(and (simple-array t 1) (satisfies %every-compact-child-cell)))
 
 (deftype compact-child-cells ()
   '(or compact-child-cell vector-of-compact-child-cell))
