@@ -6,7 +6,7 @@
                (when verbose
                  (let ((stream *standard-output*))
                    (fresh-line stream)
-                   (pprint-logical-block (stream nil :per-line-prefix "; ")
+                   (pprint-logical-block (stream nil :per-line-prefix ";; ")
                      (apply #'format stream format-control format-arguments))
                    (force-output stream))))
              (load-file (dictionary relative-filename)
