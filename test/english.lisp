@@ -7,7 +7,10 @@
   "Test dictionary lookup with strings that are not existing words."
   (is (null (spell:english-lookup "no-such-word")))
   ;; A prefix of an existing word exercises a different code path.
-  (is (null (spell:english-lookup "fuc"))))
+  (is (null (spell:english-lookup "fuc")))
+  ;; A an existing word with an non-existing suffix exercises yet
+  ;; another code path.
+  (spell:english-lookup "test'sxxx"))
 
 (test english.compare
   "Compare dictionary data structure to ground truth from dictionary file."
@@ -24,6 +27,6 @@
           (some (lambda (result)
                   (result-matches-p result expected-class base initargs))
                 results)
-          "~@<For ~S ~S [base ~S]~@[ initiargs ~{~S~^ ~}~], none of the ~
+          "~@<For ~S ~S [base ~S]~@[ initargs ~{~S~^ ~}~], none of the ~
            results ~{~A~^, ~} matches the expected properties.~@:>"
           type word base initargs results))))))

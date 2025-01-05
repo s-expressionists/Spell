@@ -152,7 +152,7 @@
 (deftype compact-child-cell ()
   '(cons child-key compact-child-value))
 
-(defun %every-compact-child-chell (object)
+(defun %every-compact-child-cell (object)
   (and (typep object 'sequence)
        (let ((length (length object)))
          (and (zerop (mod length 2))
@@ -163,7 +163,7 @@
                                  (typep child 'compact-child-value)))))))
 
 (deftype vector-of-compact-child-cell ()
-  '(and (simple-array t 1) (satisfies %every-compact-child-chell)))
+  '(and (simple-array t 1) (satisfies %every-compact-child-cell)))
 
 (deftype compact-child-cells ()
   '(or compact-child-cell vector-of-compact-child-cell))
@@ -281,7 +281,7 @@
 (defmethod %lookup ((function function)
                     (string   string)
                     (suffix   (eql 0))
-                    (nodef    compact-interior-node))
+                    (node     compact-interior-node))
   nil)
 
 (defmethod compact-node ((node raw-interior-node) (depth integer))
@@ -299,7 +299,14 @@
 ;;; We would normally define `compact-leaf-node' here, but there is no
 ;;; `compact-leaf-node' class since `compact-node' for `raw-leaf-node'
 ;;; returns the entries directly instead of wrapping them in a leaf
-;;; node.
+;;; node. A lookup in there entries can only succeed if the suffix is
+;;; already 0.
+
+(defmethod %lookup ((function function)
+                    (string   string)
+                    (suffix   integer)
+                    (node     t))
+  nil)
 
 (defmethod %lookup ((function function)
                     (string   string)
