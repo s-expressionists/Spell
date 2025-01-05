@@ -281,7 +281,7 @@
 (defmethod %lookup ((function function)
                     (string   string)
                     (suffix   (eql 0))
-                    (nodef    compact-interior-node))
+                    (node     compact-interior-node))
   nil)
 
 (defmethod compact-node ((node raw-interior-node) (depth integer))
