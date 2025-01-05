@@ -299,7 +299,14 @@
 ;;; We would normally define `compact-leaf-node' here, but there is no
 ;;; `compact-leaf-node' class since `compact-node' for `raw-leaf-node'
 ;;; returns the entries directly instead of wrapping them in a leaf
-;;; node.
+;;; node. A lookup in there entries can only succeed if the suffix is
+;;; already 0.
+
+(defmethod %lookup ((function function)
+                    (string   string)
+                    (suffix   integer)
+                    (node     t))
+  nil)
 
 (defmethod %lookup ((function function)
                     (string   string)
