@@ -1,0 +1,81 @@
+@node External Protocols
+@chapter External Protocols
+
+@menu
+* English Protocol::
+* Word Protocol::
+* Dictionary Protocol::
+@end menu
+
+This chapter describes the external protocols provided by the @sysname{} library.
+
+@node English Protocol
+@section English Protocol
+
+This protocol provides the highest level of abstraction within the
+@sysname{} library.  The protocol consists of a few functions that
+perform the most common operations with minimal setup effort.
+
+@deffuna{english-lookup,spell} (word)
+Attempt to look up @var{word} in the English dictionary and return
+either
+
+@table @asis
+
+@item @t{nil}
+if no entry in the dictionary matches @var{word}
+
+@item a single @ref{Class spell|word,word} object
+if exactly one entry in the dictionary matches @var{word}
+
+@item a list of @ref{Class spell|word,word} objects
+if more than one entry in the dictionary
+matches @var{word}.  This happens
+
+@end table
+
+Note that clients which are interested only in the validity of
+@var{word} and not in the matching dictionary entries can treat the
+return value as a generalized Boolean.
+@end deffn
+
+@deffuna{english-check-paragraph,spell} (string)
+Check the paragraph of English text @var{string} for spelling errors and
+return a list of detected errors.
+
+The return value of this function is a possibly empty list of entries of
+the form @t{(@var{start-index} . @var{end-index})}.  The
+@var{start-index} and @var{end-index} within each entry designate a
+sub-string of @var{string} that corresponds to a misspelled word.
+
+For example, the following spell checking call
+@lisp
+(spell:english-check-paragraph "In Polish, a horse is koń, and in German, it's
+das Pferd.")
+@end lisp
+results in the following three sub-strings that are not valid as English
+words:
+@example
+((22 . 25) (47 . 50) (51 . 56))
+@end example
+@end deffn
+
+@node Word Protocol
+@section Word Protocol
+
+The following class is the superclass for all word classes:
+
+@defclassa{word,spell}
+@end deftp
+
+@defgena{base,spell} (word)
+Return a string that is the base of @var{word}.
+@end deffn
+
+The @sysname{} library defines the following sub-classes of
+@ref{Class spell|word,word}:
+
+@include generated-word-classes.texi
+
+@node Dictionary Protocol
+@section Dictionary Protocol
