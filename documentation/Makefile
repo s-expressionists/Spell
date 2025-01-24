@@ -6,7 +6,8 @@ NAME = spell
 
 SOURCES = $(NAME).texi $(wildcard chapter-*.texi)
 
-GENERATED = generated-version.texi
+GENERATED = generated-version.texi      \
+            generated-word-classes.texi
 # generated-chapter-changelog.texi
 
 INPUTS = $(SOURCES) $(GENERATED)
@@ -31,6 +32,16 @@ generated-version.texi: ../data/version-string.sexp
 	     --eval '(format t "@macro sysversion~%~A~%@end macro" (uiop:read-file-form "$<"))' \
 	     --quit                                                                             \
 	  > $@
+
+generated-word-classes.texi:           \
+  ../tools/generate-documentation.lisp \
+  ../code/word-classes.lisp
+	$(SBCL) --noinform --disable-debugger --no-sysinit --no-userinit          \
+	  --load "$(QUICKLISP_DIRECTORY)/setup.lisp"                              \
+	  --eval '(asdf:initialize-source-registry $(ASDF_SOURCE_REGISTRY))'      \
+	  --eval '(ql:quickload (list "spell" "utilities.print-tree") :silent t)' \
+	  --load '../tools/generate-documentation.lisp'                                  \
+	  --quit
 
 #generated-chapter-changelog.texi: ../changes.sexp ../tools/write-changelog.lisp
 #	$(SBCL) --script write-changelog.lisp > $@
