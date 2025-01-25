@@ -57,6 +57,7 @@
                  :serial     t
                  :components ((:file "package")
                               (:file "utilities")
+                              (:file "dictionary")
                               (:file "english"))))
 
   :perform     (test-op (operation component)

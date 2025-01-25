@@ -9,7 +9,8 @@
    #:test
    #:is
    #:is-true
-   #:is-false)
+   #:is-false
+   #:signals)
 
   (:export
    #:run-tests))
