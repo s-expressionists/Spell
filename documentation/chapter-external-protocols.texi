@@ -25,12 +25,14 @@ either
 @item @t{nil}
 if no entry in the dictionary matches @var{word}
 
-@item a single @ref{Class spell|word,word} object
+@item a single @t{word} object
 if exactly one entry in the dictionary matches @var{word}
 
-@item a list of @ref{Class spell|word,word} objects
-if more than one entry in the dictionary
-matches @var{word}.  This happens
+@item a list of @t{word} objects
+if more than one entry in the dictionary matches @var{word}.  This case
+of multiple words being returned happens when @var{word} can be
+interpreted as multiple word types or multiple combinations of
+properties within a word type.
 
 @end table
 
