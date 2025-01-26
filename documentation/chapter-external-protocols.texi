@@ -62,6 +62,29 @@ words:
 @end example
 @end deffn
 
+@deffuna{english-corrections,spell} (string @pkey{} threshold)
+
+If @var{string} is a word in the English dictionary, return @t{nil} and
+otherwise return a list of strings that correspond to words in the
+English dictionary that are at most @var{threshold} removed from
+@var{string} in terms of edit-distance.
+
+If supplied, @var{threshold} has to be a non-negative integer that
+controls the maximum edit-distance of returned corrections from
+@var{string}.  Note that the value @t{0} for @var{threshold} is not very
+useful since @ref{Function spell|english-lookup,english-lookup} is a
+simpler way to perform that operation.
+
+Examples:
+@lisp
+(spell:english-corrections "lisp" :threshold 1)
+@result{} NIL
+
+(spell:english-corrections "lifp" :threshold 1)
+@result{} ("lisp" "lip" "limp" "lift" "life")
+@end lisp
+@end deffn
+
 @node Word Protocol
 @section Word Protocol
 
