@@ -90,12 +90,12 @@ Examples:
 
 The following class is the superclass for all word classes:
 
-@defclassa{word,spell}
-@end deftp
-
-@defgena{base,spell} (word)
-Return a string that is the base of @var{word}.
-@end deffn
+@c @defclassa{word,spell}
+@c @end deftp
+@c
+@c @defgena{base,spell} (word)
+@c Return a string that is the base of @var{word}.
+@c @end deffn
 
 The @sysname{} library defines the following sub-classes of
 @ref{Class spell|word,word}:
