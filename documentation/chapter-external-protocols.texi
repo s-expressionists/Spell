@@ -81,3 +81,60 @@ The @sysname{} library defines the following sub-classes of
 
 @node Dictionary Protocol
 @section Dictionary Protocol
+
+@defgena{map-similar,spell} function string dictionary threshold
+
+Call @var{function} for each entry in @var{dictionary} for which the
+edit-distance to @var{string} is below @var{threshold}.  The entries are
+reported in no particular order and in particular not ordered by
+distance.
+
+The lambda-list of @var{function} has to be compatible with
+@t{(word spelling distance)} where @var{word} is the matching
+@ref{Class spell|word,word} object, @var{spelling} is a string that is
+the spelling of @var{word} (which is not obtainable from @var{word}
+itself) and @var{distance} is the edit-distance between @var{word} and
+@var{string}.
+
+@var{string} is the query string and can be of any subtype of
+@t{cl:string}.  At the moment, the case of string is left untouched and
+only dictionary entries that match the case are reported.
+
+@var{dictionary} is a dictionary.
+
+@var{threshold} is a non-negative integer which controls how similar to
+@var{string} in terms of edit-distance the reported entries have to be.
+
+Example:
+@lisp
+(spell:map-similar
+ (lambda (word spelling distance)
+   (format t "~D ~10S ~A~%" distance spelling (class-name (class-of word)))))
+ "lisp" spell::*english-dictionary* 1)
+@print{} 1 "limp"     EXPLICIT-BASE-NOUN
+@print{} 1 "limp"     EXPLICIT-BASE-ADJECTIVE
+@print{} 1 "limp"     EXPLICIT-BASE-VERB
+@print{} 1 "lip"      EXPLICIT-BASE-NOUN
+@print{} 1 "lip"      EXPLICIT-BASE-VERB
+@print{} 1 "lisps"    EXPLICIT-BASE-NOUN
+@print{} 1 "lisps"    EXPLICIT-BASE-VERB
+@print{} 0 "lisp"     EXPLICIT-BASE-NOUN
+@print{} 0 "lisp"     EXPLICIT-BASE-VERB
+@print{} 1 "list"     EXPLICIT-BASE-NOUN
+@print{} 1 "list"     EXPLICIT-BASE-VERB
+@print{} 1 "wisp"     EXPLICIT-BASE-NOUN
+@print{} 1 "wisp"     EXPLICIT-BASE-VERB
+@end lisp
+@end deffn
+
+@defgena{corrections,spell} string dictionary threshold
+
+Examples:
+@lisp
+(spell:corrections "lisp" spell::*english-dictionary* 1)
+@result{} NIL
+
+(spell:corrections "lifp" spell::*english-dictionary* 1)
+@result{} ("lisp" "lip" "limp" "lift" "life")
+@end lisp
+@end deffn
