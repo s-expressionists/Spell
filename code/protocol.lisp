@@ -4,6 +4,8 @@
 
 (defgeneric entry-count (dictionary))
 
+(defgeneric map-entries (function dictionary))
+
 (defgeneric lookup (string dictionary))
 
 (defgeneric insert (object string dictionary))
