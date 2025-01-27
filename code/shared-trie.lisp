@@ -54,8 +54,8 @@
 
 (defmethod share-key append ((node compact-leaf-mixin) (index share-index))
   (let ((result '()))
-    (map-entries (lambda (entry) (push entry result))
-                 node (%entries node))
+    (map-leaf-entries (lambda (entry) (push entry result))
+                      node (%entries node))
     result))
 
 (defun find-node (node index)

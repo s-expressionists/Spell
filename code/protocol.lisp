@@ -14,17 +14,17 @@
 
 ;;; Lookup protocol
 
-(defgeneric %lookup (function string suffix node))
+(defgeneric node-lookup (function string suffix node))
 
 ;;; Insert protocol
 
-(defgeneric %insert (object string suffix node))
+(defgeneric node-insert (object string suffix node))
 
 ;;; Leaf node protocol
 
-(defgeneric map-entries (function node entries))
+(defgeneric map-leaf-entries (function node entries))
 
-(defgeneric add-entry (entry node entries))
+(defgeneric add-leaf-entry (entry node entries))
 
 ;;; Interior node protocol
 
