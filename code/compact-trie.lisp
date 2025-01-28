@@ -76,6 +76,10 @@
 
 (defclass compact-node (node) ())
 
+;;; Occurs only for empty raw trie.
+(defmethod compact-node ((node raw-node) (depth integer))
+  (make-instance 'compact-node))
+
 ;;; `compact-leaf-mixin', related types and leaf protocol methods
 
 (defun %every-compact-entry (object)

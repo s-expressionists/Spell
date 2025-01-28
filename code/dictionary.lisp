@@ -17,8 +17,6 @@
 (defmethod lookup ((string string) (dictionary dictionary))
   (let ((length (length string))
         (result '()))
-    (unless (plusp length)
-      (error "~@<Query string must not be empty.~@:>"))
     (%lookup (lambda (word)
                (push word result))
              string length (contents dictionary))

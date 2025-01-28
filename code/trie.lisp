@@ -4,6 +4,16 @@
 
 (defclass node (utilities.print-items:print-items-mixin) ())
 
+;;; Occurs only in empty tries (raw and compact).
+(macrolet ((define (suffix)
+             `(defmethod %lookup ((function function)
+                                  (string   string)
+                                  (suffix   ,suffix)
+                                  (node     node))
+                nil)))
+  (define (eql 0))
+  (define t))
+
 (defmethod make-load-form ((object node) &optional environment)
   (make-load-form-saving-slots object :environment environment))
 
