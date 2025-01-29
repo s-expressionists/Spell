@@ -98,32 +98,32 @@
 (defmethod utilities.print-items:print-items append
     ((object compact-leaf-mixin))
   (let ((entries '()))
-    (map-entries (lambda (entry) (push entry entries))
-                 object  (%entries object))
+    (map-leaf-entries (lambda (entry) (push entry entries))
+                      object (%entries object))
     `(((:entries (:after :children)) " entries: ~{~A~^ ~}" ,entries))))
 
-(defmethod map-entries
+(defmethod map-leaf-entries
     ((function function) (node compact-leaf-mixin) (entries t))
   (funcall function entries))
 
-(defmethod map-entries
+(defmethod map-leaf-entries
     ((function function) (node compact-leaf-mixin) (entries vector))
   (map nil function entries))
 
-(defmethod %lookup ((function function)
-                    (string   string)
-                    (suffix   (eql 0))
-                    (node     compact-leaf-mixin))
-  (map-entries (lambda (entry)
-                 (let ((word (expand-entry entry string)))
-                   (funcall function word)))
-               node (%entries node)))
+(defmethod node-lookup ((function function)
+                        (string   string)
+                        (suffix   (eql 0))
+                        (node     compact-leaf-mixin))
+  (map-leaf-entries (lambda (entry)
+                      (let ((word (expand-entry entry string)))
+                        (funcall function word)))
+                    node (%entries node)))
 
 (defmethod compact-node-slots append ((node leaf-mixin) (depth integer))
   (let ((compact-entries '()))
-    (map-entries (lambda (entry)
-                   (push (compact-entry entry) compact-entries))
-                 node (%entries node))
+    (map-leaf-entries (lambda (entry)
+                        (push (compact-entry entry) compact-entries))
+                      node (%entries node))
     (let ((new-entries
             (cond ((a:length= 1 compact-entries)
                    (first compact-entries))
@@ -227,14 +227,14 @@
           :do (consider-child-cell
                string suffix offset key (aref children (+ i 1))))))
 
-(defmethod %lookup ((function function)
-                    (string   string)
-                    (suffix   integer)
-                    (node     compact-interior-mixin))
+(defmethod node-lookup ((function function)
+                        (string   string)
+                        (suffix   integer)
+                        (node     compact-interior-mixin))
   (multiple-value-bind (child progress)
       (find-child string suffix node (%children node))
     (when (not (null child))
-      (%lookup function string (- suffix progress) child))))
+      (node-lookup function string (- suffix progress) child))))
 
 (defmethod compact-node-slots append ((node raw-interior-mixin) (depth integer))
   (labels ((make-key (key child-key)
@@ -282,10 +282,10 @@
 
 (defclass compact-interior-node (compact-interior-mixin compact-node) ())
 
-(defmethod %lookup ((function function)
-                    (string   string)
-                    (suffix   (eql 0))
-                    (node     compact-interior-node))
+(defmethod node-lookup ((function function)
+                        (string   string)
+                        (suffix   (eql 0))
+                        (node     compact-interior-node))
   nil)
 
 (defmethod compact-node ((node raw-interior-node) (depth integer))
@@ -306,23 +306,23 @@
 ;;; node. A lookup in there entries can only succeed if the suffix is
 ;;; already 0.
 
-(defmethod %lookup ((function function)
-                    (string   string)
-                    (suffix   integer)
-                    (node     t))
+(defmethod node-lookup ((function function)
+                        (string   string)
+                        (suffix   integer)
+                        (node     t))
   nil)
 
-(defmethod %lookup ((function function)
-                    (string   string)
-                    (suffix   (eql 0))
-                    (node     t))
+(defmethod node-lookup ((function function)
+                        (string   string)
+                        (suffix   (eql 0))
+                        (node     t))
   (let ((word (expand-entry node string)))
     (funcall function word)))
 
-(defmethod %lookup ((function function)
-                    (string   string)
-                    (suffix   (eql 0))
-                    (node     vector))
+(defmethod node-lookup ((function function)
+                        (string   string)
+                        (suffix   (eql 0))
+                        (node     vector))
   (map nil (lambda (entry)
              (let ((word (expand-entry entry string)))
                (funcall function word)))
