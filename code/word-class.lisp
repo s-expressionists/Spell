@@ -41,8 +41,8 @@
              (slot-boundp object '%info))
     (loop :with class    =   (class-of object)
           :for  previous =   :base :then name
-          :for  field    :in (fields class)
-          :for  name     =   (bitfield:bitfield-slot-name field)
+          :for  slot     :in (bitfield-slots class)
+          :for  name     =   (c2mop:slot-definition-name slot)
           :collect `((,name (:after ,previous))
                      " ~(~A~):~A"
                      ,(subseq (string name) 1)
