@@ -7,15 +7,19 @@
         (when (zerop k)
           (when (and *print-right-margin*
                      (zerop (mod j *print-right-margin*)))
-            (format stream "~&; "))
+            (format stream "~&;; "))
           (write-char indicator stream)
           (force-output stream)))
       (incf i))))
 
-(defun map-dictionary-entries (function)
-  (with-open-file (stream (asdf:system-relative-pathname
-                           "spell/test" "data/english.txt"))
-    (spell::map-dictionary-file-entries function stream)))
+(defun map-dictionary-entries (function
+                               &key (files '("data/english.txt"
+                                             "data/english-additions.txt")))
+  (mapc (lambda (file)
+          (with-open-file (stream (asdf:system-relative-pathname
+                                   "spell/test" file))
+            (spell::map-dictionary-file-entries function stream)))
+        files))
 
 (defun result-matches-p (result class base initargs)
   (and (typep result class)

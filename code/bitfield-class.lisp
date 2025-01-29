@@ -1,5 +1,11 @@
 (cl:in-package #:spell)
 
+;;; Protocol
+
+(defgeneric fields (class))
+
+(defgeneric bitfield-slots (class))
+
 ;;; Bitfield utilities
 
 (defun bitfield-type-p (type)
@@ -72,10 +78,13 @@
 
 (defclass bitfield-mixin () ())
 
-(defmethod fields ((class bitfield-mixin))
+(defmethod bitfield-slots ((class bitfield-mixin))
   (let ((class (c2mop:ensure-finalized class)))
-    (mapcar #'field (remove-if-not (a:of-type 'effective-field-slot-definition)
-                                   (c2mop:class-slots class)))))
+    (remove-if-not (a:of-type 'effective-field-slot-definition)
+                   (c2mop:class-slots class))))
+
+(defmethod fields ((class bitfield-mixin))
+  (mapcar #'field (bitfield-slots class)))
 
 (defmethod c2mop:compute-slots ((class bitfield-mixin))
   (let ((slots (call-next-method)))

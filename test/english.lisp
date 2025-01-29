@@ -12,8 +12,8 @@
   ;; another code path.
   (spell:english-lookup "test'sxxx"))
 
-(test english.compare
-  "Compare dictionary data structure to ground truth from dictionary file."
+(test english.compare/lookup
+  "Compare `lookup' results to ground truth from dictionary file."
   (let ((fiveam:*test-dribble* nil)
         (*print-right-margin*  80)
         (progress              (progress-reporter)))
@@ -30,3 +30,34 @@
           "~@<For ~S ~S [base ~S]~@[ initargs ~{~S~^ ~}~], none of the ~
            results ~{~A~^, ~} matches the expected properties.~@:>"
           type word base initargs results))))))
+
+(test english.compare/map-entries
+  "Compare `map-entries' to ground truth from dictionary file."
+  (let ((fiveam:*test-dribble* nil)
+        (*print-right-margin*  80)
+        (table                 (make-hash-table :test #'equal)))
+    (format *trace-output* "~&;; Enumerating dictionary items~%")
+    (let ((progress (progress-reporter)))
+      (spell:map-entries (lambda (spelling word)
+                           (declare (ignore word))
+                           (funcall progress)
+                           (setf (gethash spelling table) nil))
+                         spell::*english-dictionary*)
+      (format *trace-output* "~&;; ~:D item~:P~%" (1- (funcall progress))))
+    (format *trace-output* "~&;; Enumerating ground truth~%")
+    (let ((progress (progress-reporter)))
+      (map-dictionary-entries
+       (lambda (word type base &rest initargs)
+         (declare (ignore type base initargs))
+         (funcall progress)
+         (is-true (nth-value 1 (gethash word table))
+                  "~@<Ground truth word ~S is not in the enumerated ~
+                   dictionary items.~@:>"
+                  word)
+         (setf (gethash word table) t)))
+      (format *trace-output* "~&;; ~:D item~:P~%" (1- (funcall progress))))
+    (let ((extra-words (remove t (a:hash-table-alist table) :key #'cdr)))
+      (is (null extra-words)
+          "~@<The enumerated dictionary items contain extra words ~
+           ~{~S~^, ~}.~@:>"
+          extra-words))))

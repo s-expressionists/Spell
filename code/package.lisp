@@ -63,6 +63,9 @@
   ;; Dictionary protocol
   (:export
    #:entry-count
+   #:map-entries
+   #:lookup
+   #:insert
    #:load-dictionary)
 
   (:export
