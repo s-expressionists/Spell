@@ -14,6 +14,24 @@
 (defmethod utilities.print-items:print-items append ((object dictionary))
   `((:entry-count "~:D entr~:@P" ,(entry-count object))))
 
+(defmethod map-entries ((function t) (dictionary dictionary))
+  (let ((function   (a:ensure-function function))
+        ;; Since trie nodes do not contain the actual spellings of the
+        ;; respective associated words, we keep track of the path to
+        ;; the currently visited node in this array by pushing and
+        ;; popping characters.
+        (characters (make-array 20 :element-type 'character
+                                   :adjustable   t
+                                   :fill-pointer 0)))
+    (flet ((visit (entry characters)
+             (let* (;; We copy CHARACTERS since we don't want the base
+                    ;; of WORD to change retroactively.
+                    (spelling (copy-seq characters))
+                    (word     (expand-entry entry spelling)))
+               (funcall function spelling word))))
+      (declare (dynamic-extent #'visit))
+      (map-node-entries #'visit (contents dictionary) characters))))
+
 (defmethod lookup ((string string) (dictionary dictionary))
   (let ((length (length string))
         (result '()))
