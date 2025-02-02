@@ -58,6 +58,7 @@
                  :serial     t
                  :components ((:file "package")
                               (:file "utilities")
+                              (:file "similar")
                               (:file "dictionary")
                               (:file "english"))))
 

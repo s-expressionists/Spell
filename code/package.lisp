@@ -65,6 +65,7 @@
    #:entry-count
    #:map-entries
    #:lookup
+   #:map-similar
    #:insert
    #:load-dictionary)
 

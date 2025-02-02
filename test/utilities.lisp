@@ -28,3 +28,23 @@
              :for function = (find-symbol (symbol-name key)
                                           (find-package '#:spell))
              :always (equal (funcall function result) value))))
+
+(defun set-equal/equal (a b)
+  (a:set-equal a b :test #'equal))
+
+(defun set-equal/string (a b)
+  (a:set-equal a b :test #'string=))
+
+(defun entry-equal (entry1 entry2)
+  (destructuring-bind (spelling1 word1 distance1) entry1
+    (destructuring-bind (spelling2 word2 distance2) entry2
+      (and (string= spelling1 spelling2)
+           (eq (class-of word1) (class-of word2))
+           (loop :for slot :in (spell::bitfield-slots (class-of word1))
+                 :for name  =   (c2mop:slot-definition-name slot)
+                 :always (eql (slot-value word1 name)
+                              (slot-value word2 name)))
+           (eql distance1 distance2)))))
+
+(defun set-equal/entry (set1 set2)
+  (a:set-equal set1 set2 :test #'entry-equal))
