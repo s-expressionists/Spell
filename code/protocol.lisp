@@ -18,6 +18,10 @@
 
 (defgeneric node-lookup (function string suffix node))
 
+;;; Similar protocol
+
+(defgeneric node-map-similar (function string suffix node threshold characters))
+
 ;;; Insert protocol
 
 (defgeneric node-insert (object string suffix node))
