@@ -73,4 +73,5 @@
 
   (:export
    #:english-lookup
-   #:english-check-paragraph))
+   #:english-check-paragraph
+   #:english-corrections))
