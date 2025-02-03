@@ -8,6 +8,14 @@
 
 (defgeneric lookup (string dictionary))
 
+(defgeneric map-similar (function string dictionary threshold))
+
+(defgeneric map-corrections (function string dictionary threshold
+                             &key variants group-by count))
+
+(defgeneric corrections (string dictionary threshold
+                         &key variants group-by count))
+
 (defgeneric insert (object string dictionary))
 
 (defgeneric load-dictionary (source &key into))
@@ -17,6 +25,10 @@
 ;;; Lookup protocol
 
 (defgeneric node-lookup (function string suffix node))
+
+;;; Similar protocol
+
+(defgeneric node-map-similar (function string suffix node threshold characters))
 
 ;;; Insert protocol
 

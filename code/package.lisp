@@ -65,9 +65,13 @@
    #:entry-count
    #:map-entries
    #:lookup
+   #:map-similar
+   #:map-corrections
+   #:corrections
    #:insert
    #:load-dictionary)
 
   (:export
    #:english-lookup
-   #:english-check-paragraph))
+   #:english-check-paragraph
+   #:english-corrections))
