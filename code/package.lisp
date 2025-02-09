@@ -17,12 +17,12 @@
   (:export
    #:number
    #:case
-   #:gender
-   #:singular)
+   #:gender)
 
   ;; Verb protocol
   (:export
    #:person
+   #:number
    #:tense
    #:mood
    #:negative

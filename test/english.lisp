@@ -61,3 +61,33 @@
           "~@<The enumerated dictionary items contain extra words ~
            ~{~S~^, ~}.~@:>"
           extra-words))))
+
+(test contractions.one-component
+  "Check that the base word of `verb' with :contraction t is in the
+dictionary."
+  (let ((dictionary spell::*english-dictionary*))
+    (spell:map-entries
+     (lambda (spelling word)
+       (declare (ignore spelling))
+       (when (and (typep word 'spell::verb)
+                  (spell:contraction word))
+         (let ((base (spell:base word)))
+           (is-true (spell:lookup base dictionary)))))
+     dictionary)))
+
+(test contractions.two-components
+  "Check that the base words of `noun-verb-contraction's and
+`verb-verb-contraction's are in the dictionary."
+  (let ((dictionary spell::*english-dictionary*))
+    (spell:map-entries
+     (lambda (spelling word)
+       (declare (ignore spelling))
+       (when (or (typep word 'spell::noun-verb-contraction)
+                 (typep word 'spell::verb-verb-contraction))
+         (let* ((base  (spell:base word))
+                (index (position #\Space base))
+                (word1 (subseq base 0 index))
+                (word2 (subseq base (1+ index))))
+           (is-true (spell:lookup word1 dictionary))
+           (is-true (spell:lookup word2 dictionary)))))
+     dictionary)))

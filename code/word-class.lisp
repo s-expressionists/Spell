@@ -24,7 +24,9 @@
 
 (defclass word (utilities.print-items:print-items-mixin)
   ()
-  (:metaclass word-class))
+  (:metaclass word-class)
+  (:documentation
+   "Superclass for all word classes."))
 
 #-minimal-raw-trie
 (defmethod make-load-form ((object word) &optional environment)
@@ -124,14 +126,15 @@
          (index       (position nil classes)))
     (setf (aref classes index) entry)))
 
-(defmacro defword (class-name superclasses slots)
+(defmacro defword (class-name superclasses slots &rest options)
   (let ((type                     (a:make-keyword class-name))
         (implicit-base-class-name (a:symbolicate '#:implicit-base- class-name))
         (explicit-base-class-name (a:symbolicate '#:explicit-base- class-name)))
     `(progn
        (defclass ,class-name (,@superclasses word)
          (,@slots)
-         (:metaclass word-class))
+         (:metaclass word-class)
+         ,@options)
 
        (defclass ,implicit-base-class-name (implicit-base-mixin ,class-name)
          ()
