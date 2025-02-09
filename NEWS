@@ -1,5 +1,7 @@
 Release 0.3 (not yet released)
 
+* Documentation is now available in the documentation directory.
+
 * The new function MAP-ENTRIES calls a supplied function for each entry in a
   given dictionary.
 

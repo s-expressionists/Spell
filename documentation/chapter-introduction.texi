@@ -1,0 +1,9 @@
+@node Introduction
+@chapter Introduction
+
+The @sysname{} library provides protocols and implementations of those
+protocols for automatic spell-checking and suggestion of likely
+corrections.  In addition to the spelling of words, dictionary entries
+contain information about word types and properties of the words such as
+case, gender and number.  At the moment, English is the only supported
+language.

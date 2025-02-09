@@ -2,6 +2,10 @@
  (:release "0.3" nil
   (:item
    (:paragraph
+    "Documentation" "is" "now" "available" "in" "the" (:tt "documentation")
+    "directory" "."))
+  (:item
+   (:paragraph
     "The" "new" "function" (:symbol "map-entries") "calls" "a" "supplied"
     "function" "for" "each" "entry" "in" "a" "given" "dictionary" ".")))
  (:release "0.2" "2025-01-05"

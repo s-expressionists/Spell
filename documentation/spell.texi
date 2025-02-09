@@ -1,0 +1,60 @@
+\input texinfo
+
+@include macros.texi
+@include generated-version.texi
+
+@documentencoding UTF-8
+@documentlanguage en
+
+@syncodeindex vr fn
+@syncodeindex tp fn
+
+@paragraphindent 0
+
+@settitle @sysname{} User's Manual
+
+@copying
+Copyright @copyright{} 2025 Jan Moringen
+@end copying
+
+@dircategory Common Lisp
+@direntry
+* spell User's Manual: (spell). A simple spell-checking library.
+@end direntry
+
+@titlepage
+@title @sysname{} User's Manual
+
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top @sysname{} User's Manual
+
+This manual is for @sysname{} version @sysversion{}.
+@end ifnottex
+
+@menu
+* Introduction::
+* Concept index::
+* Function and macro and variable and type index::
+@end menu
+
+@include chapter-introduction.texi
+
+@node Concept index
+@unnumbered Concept index
+
+@printindex cp
+
+@node Function and macro and variable and type index
+@unnumbered Function and macro and variable and type index
+
+@printindex fn
+
+@c TODO @include chapter-changelog.texi
+
+@bye
