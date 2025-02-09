@@ -7,7 +7,8 @@ NAME = spell
 SOURCES = $(NAME).texi $(wildcard chapter-*.texi)
 
 GENERATED = generated-version.texi           \
-            generated-chapter-changelog.texi
+            generated-chapter-changelog.texi \
+            generated-word-classes.texi
 
 INPUTS = $(SOURCES) $(GENERATED)
 
@@ -39,6 +40,17 @@ generated-chapter-changelog.texi: ../data/changes.sexp          \
 	        --load ../tools/read-changes.lisp              \
 	        --load ../tools/texinfo.lisp                   \
 	        --script ../tools/write-changelog.lisp $< > $@
+
+generated-word-classes.texi: ../tools/texinfo.lisp                \
+                             ../tools/generate-documentation.lisp \
+                             ../code/protocol.lisp                \
+                             ../code/word-classes.lisp
+	$(SBCL) --noinform                                                              \
+	        --load "$(QUICKLISP_DIRECTORY)/setup.lisp"                              \
+	        --eval '(asdf:initialize-source-registry $(ASDF_SOURCE_REGISTRY))'      \
+	        --eval '(ql:quickload (list "spell" "utilities.print-tree") :silent t)' \
+	        --load ../tools/texinfo.lisp                                            \
+	        --script ../tools/generate-documentation.lisp > $@
 
 $(NAME).info: $(INPUTS) $(IMAGES)
 	makeinfo --output $@ $(NAME).texi
