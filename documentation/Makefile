@@ -6,7 +6,8 @@ NAME = spell
 
 SOURCES = $(NAME).texi $(wildcard chapter-*.texi)
 
-GENERATED = generated-version.texi
+GENERATED = generated-version.texi           \
+            generated-chapter-changelog.texi
 
 INPUTS = $(SOURCES) $(GENERATED)
 
@@ -30,6 +31,14 @@ generated-version.texi: ../data/version-string.sexp
 	     --eval '(format t "@macro sysversion~%~A~%@end macro" (uiop:read-file-form "$<"))' \
 	     --quit                                                                             \
 	  > $@
+
+generated-chapter-changelog.texi: ../data/changes.sexp          \
+                                  ../tools/texinfo.lisp         \
+                                  ../tools/write-changelog.lisp
+	$(SBCL) --noinform                                     \
+	        --load ../tools/read-changes.lisp              \
+	        --load ../tools/texinfo.lisp                   \
+	        --script ../tools/write-changelog.lisp $< > $@
 
 $(NAME).info: $(INPUTS) $(IMAGES)
 	makeinfo --output $@ $(NAME).texi
