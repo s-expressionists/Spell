@@ -1,5 +1,13 @@
 (cl:in-package #:spell)
 
+;;; Trie node protocol default behavior
+
+(defmethod leafp ((node t))
+  t)
+
+(defmethod interiorp ((node t))
+  nil)
+
 ;;; `node' class
 
 (defclass node (utilities.print-items:print-items-mixin) ())
@@ -36,6 +44,9 @@
                     (incf child-count))
                   object (%children object))
     `((:children "~D ~:*child~[ren~;~:;ren~]" ,child-count))))
+
+(defmethod interiorp ((node interior-mixin))
+  t)
 
 ;;; Concrete node classes
 

@@ -14,6 +14,10 @@
 
 ;;; Trie node protocols
 
+(defgeneric leafp (node))
+
+(defgeneric interiorp (node))
+
 ;;; Lookup protocol
 
 (defgeneric node-lookup (function string suffix node))

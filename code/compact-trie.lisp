@@ -274,7 +274,7 @@
   ;; Now that children and compact entries have been handled, if NODE
   ;; is also a leaf, call the next method which is the one specialized
   ;; to `leaf-mixin' to handle the non-compact entries.
-  (when (typep node 'leaf-mixin)
+  (when (leafp node)
     (call-next-method)))
 
 (defmethod compact-node-slots append ((node raw-interior-mixin) (depth integer))
@@ -322,6 +322,9 @@
 ;;; Concrete node classes
 
 (defclass compact-interior-node (compact-interior-mixin compact-node) ())
+
+(defmethod leafp ((node compact-interior-node))
+  nil)
 
 (defmethod node-lookup ((function function)
                         (string   string)
