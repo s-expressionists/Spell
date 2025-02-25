@@ -172,6 +172,9 @@
                  (map-similar collector variant dictionary threshold
                               :result group-by))))
       (declare (dynamic-extent #'report/spelling #'report/entry #'try))
+      ;; TODO: this is wrong since results will not be reported in
+      ;; order of increasing edit-distance but primarily in order of
+      ;; variants tried.
       (funcall variants #'try string))))
 
 (defmethod corrections ((string     sequence)
