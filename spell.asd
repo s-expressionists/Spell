@@ -27,6 +27,7 @@
                               (:file "raw-trie")
                               (:file "compact-trie")
                               (:file "shared-trie")
+                              (:file "similar")
                               ;; Dictionary
                               (:file "dictionary")))
 
@@ -57,6 +58,7 @@
                  :serial     t
                  :components ((:file "package")
                               (:file "utilities")
+                              (:file "similar")
                               (:file "dictionary")
                               (:file "english"))))
 
