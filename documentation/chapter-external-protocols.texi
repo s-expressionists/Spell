@@ -1,0 +1,170 @@
+@node External Protocols
+@chapter External Protocols
+
+@menu
+* English Protocol::
+* Word Protocols::
+* Dictionary Protocol::
+@end menu
+
+This chapter describes the external protocols provided by the @sysname{} library.
+
+@node English Protocol
+@section English Protocol
+
+This protocol provides the highest level of abstraction within the
+@sysname{} library.  The protocol consists of a few functions that
+perform the most common operations with minimal setup effort.
+
+@deffuna{english-lookup,spell} string
+
+Return a (possibly empty) list of entries in the English dictionary the
+spelling of which matches @var{string}.
+
+The returned entries are instances of @t{@ref{Class spell|word,word}}.
+More than one entry in the dictionary can match @var{string} due to
+different word types or multiple combinations of properties within a
+word type that share a common spelling.
+
+Note that clients which are interested only in the validity of
+@var{string} and not in the matching dictionary entries can treat the
+return value as a generalized Boolean.
+
+Examples:
+@lisp
+(spell:english-lookup "lithp")
+@result{} NIL
+
+(spell:english-lookup "lisp")
+@result{} (#<EXPLICIT-BASE-VERB "lisp" person:ANY number:ANY ... infinitive:SELF @{1004ED5993@}>
+   #<EXPLICIT-BASE-NOUN "lisp" number:SINGULAR case:NIL gender:NIL @{1004ED3533@}>)
+@end lisp
+@end deffn
+
+@deffuna{english-check-paragraph,spell} string
+
+Check the paragraph of English text @var{string} for spelling errors and
+return a list of detected errors.
+
+The return value of this function is a possibly empty list of entries of
+the form @t{(@var{start-index} . @var{end-index})}.  The
+@var{start-index} and @var{end-index} within each entry designate a
+sub-string of @var{string} that corresponds to a misspelled word.
+
+Example:
+@lisp
+(spell:english-check-paragraph "In Polish, a horse is koń, and in German, it's
+das Pferd.")
+@result{} ((22 . 25) (47 . 50) (51 . 56))
+@end lisp
+
+The three pairs in the result correspond to sub-strings that are not
+valid English words:
+
+@lisp
+(loop :with string = "In Polish, a horse is koń, and in German, it's
+das Pferd."
+      :for (start . end) :in (spell:english-check-paragraph string)
+      :collect (subseq string start end))
+@result{} ("koń" "das" "Pferd")
+@end lisp
+@end deffn
+
+@node Word Protocols
+@section Word Protocols
+
+Entries in @sysname{} dictionaries are conceptually pair: an (implicit)
+string that is the spelling and a word object that characterizes the
+word type and the type-specific properties of the word.  Word objects
+are instance of subclasses of @ref{Class spell|word,word}.  @sysname{}
+defines the following sub-classes of @ref{Class spell|word,word} and
+associated readers:
+
+@include generated-word-classes.texi
+
+@node Dictionary Protocol
+@section Dictionary Protocol
+
+@defgena{entry-count,@toppackage{}} dictionary
+
+Return the number of entries in @var{dictionary}.
+
+Example
+@lisp
+(spell:entry-count spell::*english-dictionary*)
+@result{} 347488
+@end lisp
+@end deffn
+
+@defgena{map-entries,@toppackage{}} function dictionary
+
+Call @var{function} for each entry in @var{dictionary}.
+
+The lambda-list of @var{function} has to be compatible with
+@t{(spelling word)} where @var{word} is the word object of the entry and
+@var{spelling} is the spelling of the entry as a string.
+
+@var{spelling} is passed as a separate argument because it cannot be
+obtained from @var{word}.
+
+Example:
+@lisp
+(prog ((i 0))
+  (spell:map-entries (lambda (spelling word)
+                       (cond ((<= 7000 (incf i) 7005)
+                              (format t "~D ~10A ~A~%" i spelling word))
+                             ((> i 10005)
+                              (return))))
+                     spell::*english-dictionary*))
+@print{} 7000 Highlander #<EXPLICIT-BASE-NOUN "Highlander" number:SINGULAR case:NIL gender:NIL @{101ACF7AF3@}>
+@print{} 7001 Highlands' #<EXPLICIT-BASE-PROPER-NOUN "Highland" number:PLURAL case:GENITIVE gender:NIL @{101AD086E3@}>
+@print{} 7002 Highlands  #<EXPLICIT-BASE-PROPER-NOUN "Highland" number:PLURAL case:NIL gender:NIL @{101AD087C3@}>
+@print{} 7003 Highland   #<EXPLICIT-BASE-PROPER-NOUN "Highland" number:SINGULAR case:NIL gender:NIL @{101AD088A3@}>
+@print{} 7004 Hilary's   #<EXPLICIT-BASE-PROPER-NOUN "Hilary" number:SINGULAR case:GENITIVE gender:NIL @{101AD08983@}>
+@print{} 7005 Hilarys'   #<EXPLICIT-BASE-PROPER-NOUN "Hilary" number:PLURAL case:GENITIVE gender:NIL @{101AD08A63@}>
+@end lisp
+@end deffn
+
+@defgena{lookup,@toppackage{}} string dictionary
+
+Return a (possibly empty) list of entries in @var{dictionary} the
+spelling of which matches @var{string}.
+
+Example:
+@lisp
+(spell:lookup "bright" spell::*english-dictionary*)
+@result{} (#<EXPLICIT-BASE-ADVERB "bright" @{101B1CE6B3@}>
+   #<EXPLICIT-BASE-ADJECTIVE "bright" degree:POSITIVE @{101B1CE663@}>
+   #<EXPLICIT-BASE-NOUN "bright" number:SINGULAR case:NIL gender:NIL @{101B1CE633@}>)
+@end lisp
+@end deffn
+
+@defgena{insert,@toppackage{}} word string dictionary
+
+Insert @var{word} into @var{dictionary} as an entry for @var{string}.
+
+@var{word} must be an instance of @ref{Class spell|word,word}.
+
+@var{dictionary} must be a mutable dictionary.  A ``raw'' dictionary is
+mutable, a ``compacted'' dictionary is not mutable.
+@end deffn
+
+@defgena{load-dictionary,@toppackage{}} source @pkey{} into
+
+Turn the word information in @var{source} into @var{into} or a new
+dictionary and return that dictionary.
+
+@var{source} can be a stream, a string or pathname or some other
+sequence.  If @var{source} is a stream, it must be an open character
+input stream.  The word information is read from the stream.  If
+@var{source} is a string a pathname it is a designator for a file that
+should be opened and read.  If @var{source} is some other sequence, the
+sequence elements must be of the types discussed above.  The word
+information from all source is combined into one dictionary in that
+case.
+
+If supplied, @var{into} must be a mutable dictionary into which the word
+information should be loaded.  The function returns @var{into} in that
+case.  Otherwise the function creates a new dictionary, loads the word
+information into it and returns it.
+@end deffn
