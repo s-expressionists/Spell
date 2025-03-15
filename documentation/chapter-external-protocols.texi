@@ -70,6 +70,76 @@ das Pferd."
 @end lisp
 @end deffn
 
+@deffuna{english-corrections,@toppackage{}} string @pkey{} threshold @
+  variants group-by count
+
+Return entries from the English dictionary that are at most
+@var{threshold} removed from @var{string} in terms of edit-distance.
+Return two values: a list of entries and a Boolean which indicates
+whether @var{string} is spelled correctly according to the English
+dictionary.  By default, the elements of the list that is the first
+return value are unique strings that correspond to the spellings of
+matching dictionary entries.  The caller can use the @var{group-by}
+parameter (see below) to make the function return pairs of
+@ref{Class @toppackage{}|word,word} instances and spellings instead.
+
+If supplied, @var{threshold} has to be a non-negative integer that
+controls the maximum edit-distance of returned corrections from
+@var{string}.  Note that the value @t{0} for @var{threshold} is not very
+useful since @ref{Function @toppackage{}|english-lookup,english-lookup}
+is a simpler way to perform that operation.
+
+If supplied, @var{variants} has to be a function that accepts as its
+arguments a string and another function which it must call once for each
+case variant of the string that should be considered.  The default value
+is a more complete and sophisticated version of the following:
+@lisp
+(lambda (continuation string)
+  (funcall continuation string)
+  (when @samp{certain-conditions}
+    (funcall continuation (string-decapitalized string)))
+  (when @samp{certain-conditions})
+    (funcall continuation (string-downcase string)))
+@end lisp
+
+If supplied, @var{group-by} has to be either @t{:spelling} or
+@t{:entry}.  It controls whether word objects are included in elements
+of the returned list.  If @var{group-by} is @t{:entry}, elements are of
+the form @t{(@var{word} . @var{spelling})}.  If @var{group-by} is
+@t{:spelling}, elements are strings and each string is one spelling.
+The default is @t{:spelling}.  Note that the value of @var{group-by}
+influences the number returned elements since a spelling that
+corresponds to multiple entries will be reported once for @t{:spelling}
+but multiple times for @t{:entry}.
+
+If supplied, @var{count} controls the maximum number of entries that are
+returned as the first value.
+
+Examples:
+@lisp
+(spell:english-corrections "lisp" :threshold 1)
+@result{} ("lisp" "lisps" "list" "lip" "limp" "wisp") T
+
+(spell:english-corrections "lifp" :threshold 1)
+@result{} ("lift" "life" "lip" "lisp" "limp") NIL
+
+(spell:english-corrections
+ "abc" :threshold 1
+       :variants (lambda (continuation string)
+                   (funcall continuation (string-upcase string))))
+@result{} ("ABC" "ABCs") T
+
+(spell:english-corrections
+ "abc" :threshold 1
+       :variants (lambda (continuation string)
+                   (funcall continuation (string-upcase string)))
+       :group-by :entry)
+@result{} ((#<EXPLICIT-BASE-NOUN "ABC" number:SINGULAR ...> . "ABC")
+   (#<EXPLICIT-BASE-NOUN "ABC" number:PLURAL ... > . "ABCs"))
+  T
+@end lisp
+@end deffn
+
 @node Word Protocols
 @section Word Protocols
 
