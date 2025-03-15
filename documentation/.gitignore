@@ -13,6 +13,4 @@
 *.pdf
 *.png
 
-generated-version.texi
-generated-chapter-changelog.texi
-generated-word-classes.texi
+generated-*.texi
