@@ -151,6 +151,9 @@
 
 (defclass raw-interior-node (raw-interior-mixin interior-node raw-node) ())
 
+(defmethod leafp ((node raw-interior-node))
+  nil)
+
 #-minimal-raw-trie
 (defmethod node-lookup
     ((function function) (string string) (suffix (eql 0)) (node raw-interior-node))
