@@ -3,6 +3,8 @@
 (fiveam:def-suite* :spell.english
   :in :spell)
 
+;;; Tests for `english-lookup'
+
 (test english.non-existing-word
   "Test dictionary lookup with strings that are not existing words."
   (is (null (spell:english-lookup "no-such-word")))
@@ -91,3 +93,75 @@ dictionary."
            (is-true (spell:lookup word1 dictionary))
            (is-true (spell:lookup word2 dictionary)))))
      dictionary)))
+
+;;; Tests for `english-corrections'
+
+(test english-corrections/empty
+  "Smoke test for `english-corrections' with the empty word."
+  (is (equal (values '() nil) (spell:english-corrections "" :threshold 0)))
+  (multiple-value-bind (corrections found?)
+      (spell:english-corrections "" :threshold 1)
+    (mapc (lambda (suggestion) (is (= 1 (length suggestion)))) corrections)
+    (is-false found?)))
+
+(test english-corrections/variants
+  "Smoke test for `english-corrections' with just spelling and variants."
+  ;; Threshold 0 for invalid and valid word.
+  (flet ((one-variant (string)
+           (is (equal (values '() nil)
+                      (spell:english-corrections string :threshold 0)))))
+    (one-variant "circumstanzes")
+    (one-variant "Circumstanzes")
+    (one-variant "CIRCUMSTANZES"))
+  (flet ((one-variant (string)
+           (is (equal (values '("circumstances") t)
+                      (spell:english-corrections string :threshold 0)))))
+    (one-variant "circumstances")
+    (one-variant "Circumstances")
+    (one-variant "CIRCUMSTANCES"))
+  ;; Threshold 1 for invalid and valid word.
+  (flet ((one-variant (string)
+           (multiple-value-bind (corrections found?)
+               (spell:english-corrections string :threshold 1)
+             (is (set-equal/string '("circumstances") corrections))
+             (is-false found?))))
+    (one-variant "circumstanzes")
+    (one-variant "Circumstanzes")
+    (one-variant "CIRCUMSTANZES"))
+  (flet ((one-variant (string)
+           (multiple-value-bind (corrections found?)
+               (spell:english-corrections string :threshold 1)
+             (is (set-equal/string '("circumstances" "circumstance"
+                                     "circumstances'" "circumstance's")
+                                   corrections))
+             (is-true found?))))
+    (one-variant "circumstances")
+    (one-variant "Circumstances")
+    (one-variant "CIRCUMSTANCES")))
+
+(test english-corrections/word
+  "Smoke test for `english-corrections' with spelling and word."
+  (let* ((results (spell:english-corrections "circumstanzes" :threshold 1
+                                                             :group-by  :entry))
+         (result  (first results)))
+    (is (= 1 (length results)))
+    (destructuring-bind (word . spelling) result
+      (is (string= "circumstances" spelling))
+      (is-true (typep word 'spell::noun))
+      (is (string= "circumstance" (spell:base   word)))
+      (is (eql     :plural        (spell:number word)))
+      (is (eql     nil            (spell:case   word)))
+      (is (eql     nil            (spell:gender word))))))
+
+(test english-corrections/threshold-2
+  "Smoke test for `english-corrections' with threshold 2."
+  (is (set-equal/string
+       #1='("circumstances" "circumstance" "circumstances'" "circumstance's")
+       (spell:english-corrections "circumstanzes" :threshold 2)))
+  ;; Requesting fewer suggestions must result in a subset of the
+  ;; requested size.
+  (let* ((results      (spell:english-corrections "circumstanzes" :threshold 2
+                                                                  :count     2))
+         (intersection (intersection #1# results :test #'string=)))
+    (is (= 2 (length results)))
+    (is (set-equal/string results intersection))))

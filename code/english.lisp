@@ -95,3 +95,11 @@
         do (setf position word-end)
         unless (english-lookup (subseq string word-start word-end))
           collect (cons word-start word-end)))
+
+(defun english-corrections (string &key (threshold 2)
+                                        (variants  'map-english-case-variants)
+                                        (group-by  :spelling)
+                                        (count     nil))
+  (corrections string *english-dictionary* threshold :variants variants
+                                                     :group-by group-by
+                                                     :count    count))
