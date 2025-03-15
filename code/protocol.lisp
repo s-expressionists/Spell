@@ -18,6 +18,8 @@
 
 (defgeneric node-lookup (function string suffix node))
 
+(defgeneric map-node-entries (function node characters))
+
 ;;; Insert protocol
 
 (defgeneric node-insert (object string suffix node))
