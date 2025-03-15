@@ -218,3 +218,60 @@
                       (funcall function spelling word distance))))))
          (declare (dynamic-extent #'result))
          (%map-similar #'result string dictionary threshold))))))
+
+(defmethod map-corrections ((function   function)
+                            (string     string)
+                            (dictionary dictionary)
+                            (threshold  integer)
+                            &key (variants (lambda (continuation string)
+                                             (funcall continuation string)))
+                                 (group-by :entry))
+  (check-type threshold a:array-index)
+  (check-type group-by  (member :spelling :entry))
+  (let ((variants (a:ensure-function variants)))
+    (labels ((report/spelling (spelling distance)
+               (funcall function spelling distance))
+             (report/entry (spelling node distance)
+               (funcall function spelling node distance))
+             (try (variant)
+               (let ((collector (cl:case group-by
+                                  (:spelling #'report/spelling)
+                                  (:entry    #'report/entry))))
+                 (map-similar collector variant dictionary threshold
+                              :group-by group-by))))
+      (declare (dynamic-extent #'report/spelling #'report/entry #'try))
+      ;; TODO: this is wrong since results will not be reported in
+      ;; order of increasing edit-distance but primarily in order of
+      ;; variants tried.
+      (funcall variants #'try string))))
+
+(defmethod corrections ((string     string)
+                        (dictionary dictionary)
+                        (threshold  integer)
+                        &key (group-by :entry)
+                             (variants nil    variants-supplied-p)
+                             count)
+  (check-type count (or null a:array-index))
+  (let ((results   '())
+        (correct?  nil)
+        (remaining count))
+    ;; The results arrive in increasing-edit-distance order.  We
+    ;; expect a small-ish number of results so we use a list.
+    (block nil
+      (macrolet ((handler ((&rest parameters) value-form)
+                   `(lambda (,@parameters distance)
+                      (when (zerop distance)
+                        (setf correct? t))
+                      (cond ((null remaining))
+                            ((eql remaining 0) (return))
+                            (t                 (decf remaining)))
+                      (push ,value-form results))))
+        (apply #'map-corrections
+               (ecase group-by
+                 (:spelling (handler (spelling)      spelling))
+                 (:entry    (handler (spelling word) (cons word spelling))))
+               string dictionary threshold :group-by group-by
+               (when variants-supplied-p (list :variants variants)))))
+    ;; Reverse so that the results with the smallest edit-distance are
+    ;; at the beginning of the result list.
+    (values (nreverse results) correct?)))

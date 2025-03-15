@@ -66,6 +66,8 @@
    #:map-entries
    #:lookup
    #:map-similar
+   #:map-corrections
+   #:corrections
    #:insert
    #:load-dictionary)
 
