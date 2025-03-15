@@ -89,7 +89,7 @@ associated readers:
 
 Return the number of entries in @var{dictionary}.
 
-Example
+Example:
 @lisp
 (spell:entry-count spell::*english-dictionary*)
 @result{} 347488
