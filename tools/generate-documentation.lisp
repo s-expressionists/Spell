@@ -84,7 +84,7 @@
                      (sb-mop:class-direct-superclasses subclass)))))
     (let* ((all         (sb-mop:class-direct-subclasses class))
            (interesting (remove-if #'badp all)))
-      (sort interesting #'string< :key #'class-name))))
+      (sort (copy-list interesting) #'string< :key #'class-name))))
 
 (defun map-word-classes (function)
   (let ((seen '()))
