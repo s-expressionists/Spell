@@ -27,6 +27,7 @@
                               (:file "raw-trie")
                               (:file "compact-trie")
                               (:file "shared-trie")
+                              (:file "similar")
                               ;; Dictionary
                               (:file "dictionary")))
 
