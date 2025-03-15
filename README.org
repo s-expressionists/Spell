@@ -2,14 +2,14 @@
 
 * Introduction
 
-  SPELL is a spellchecking library for Common Lisp.
+  SPELL is a spellchecking library for Common Lisp. It is made
+  available under the BSD license.
 
-  It is made available under the BSD license.
-
-  Loading the ~spell~ system may initially take up to between, say, 3
-  and 60 seconds (depending on the machine and CL implementation) as
-  an English dictionary is loaded and compiled into the resulting FASL
-  file.
+  Loading (possibly after compiling) the ~spell~ system may initially
+  take between something like 3 and 60 seconds, depending on the
+  machine and CL implementation, as an English dictionary is loaded,
+  optimized and compiled into a FASL file. Subsequent load operations
+  (without compiling) should finish within well below one second.
 
   For loading the ~spell~ system, use
 
@@ -17,12 +17,16 @@
     (ql:quickload "spell")
   #+end_src
 
-  Currently the only exported functions are ~spell:english-lookup~
-  that accepts a string, and ~spell:english-check-paragraph~ that
-  checks a whole paragraph of text and returns a list of conses. Each
-  cons represents a single word in the paragraph which has failed
-  dictionary lookup, with the ~car~ and ~cdr~ being offsets in the
-  original string outlining the word.
+  This document gives only a very brief overview and highlights some
+  features. Proper documentation can be found in the
+  file:documentation directory.
+
+* Looking up Words
+
+  The exported functions for looking up words are
+  ~spell:english-lookup~ which accepts a string, and
+  ~spell:english-check-paragraph~ which checks a whole paragraph of
+  text and returns a list of conses:
 
   #+begin_src lisp :exports both
     (spell:english-lookup "horse")
@@ -30,8 +34,8 @@
 
   #+RESULTS:
   #+begin_example
-  (#<EXPLICIT-BASE-VERB #1="horse" person:ANY number:ANY tense:NIL negative:NIL contraction:NIL strength:WEAK infinitive:SELF {1001089AA3}>
-   #<EXPLICIT-BASE-NOUN #1# number:SINGULAR case:NIL gender:NIL {1001089A73}>)
+  (#<EXPLICIT-BASE-VERB "horse" person:ANY number:ANY tense:NIL negative:NIL contraction:NIL strength:WEAK infinitive:SELF {1001089AA3}>
+   #<EXPLICIT-BASE-NOUN "horse" number:SINGULAR case:NIL gender:NIL {1001089A73}>)
   #+end_example
 
   #+begin_src lisp :exports both
@@ -43,6 +47,31 @@
   #+begin_example
     ((22 . 25) (47 . 50) (51 . 56))
   #+end_example
+
+  Each cons represents a single word in the paragraph which has failed
+  dictionary lookup, with the ~car~ and ~cdr~ being offsets in the
+  original string outlining the word.
+
+* Obtaining Corrections
+
+  The SPELL library exports a few functions that obtain similar words
+  for a given word or corrections for a misspelled word. The most
+  convenient function is ~spell:english-corrections~ which returns a
+  list of corrections for a (possibly) misspelled English word;
+
+  #+begin_src lisp :exports both :results value verbatim
+    (spell:english-corrections "lifp" :threshold 1)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+    ("lift" "life" "lip" "lisp" "limp")
+    NIL
+  #+end_example
+
+  For more ways to use this function as well as the information about
+  the lower-level functions for similar words and corrections, see the
+  main documentation.
 
 * Backward Compatibility Notice
 
@@ -61,5 +90,5 @@
   #+end_src
 
 # Local Variables:
-# eval: (load-library 'ob-lisp)
+# eval: (load-library "ob-lisp")
 # End:
