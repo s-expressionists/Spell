@@ -16,12 +16,12 @@ This protocol provides the highest level of abstraction within the
 @sysname{} library.  The protocol consists of a few functions that
 perform the most common operations with minimal setup effort.
 
-@deffuna{english-lookup,spell} string
+@deffuna{english-lookup,@toppackage{}} string
 
 Return a (possibly empty) list of entries in the English dictionary the
 spelling of which matches @var{string}.
 
-The returned entries are instances of @t{@ref{Class spell|word,word}}.
+The returned entries are instances of @t{@ref{Class @toppackage{}|word,word}}.
 More than one entry in the dictionary can match @var{string} due to
 different word types or multiple combinations of properties within a
 word type that share a common spelling.
@@ -41,7 +41,7 @@ Examples:
 @end lisp
 @end deffn
 
-@deffuna{english-check-paragraph,spell} string
+@deffuna{english-check-paragraph,@toppackage{}} string
 
 Check the paragraph of English text @var{string} for spelling errors and
 return a list of detected errors.
@@ -76,8 +76,8 @@ das Pferd."
 Entries in @sysname{} dictionaries are conceptually pair: an (implicit)
 string that is the spelling and a word object that characterizes the
 word type and the type-specific properties of the word.  Word objects
-are instance of subclasses of @ref{Class spell|word,word}.  @sysname{}
-defines the following sub-classes of @ref{Class spell|word,word} and
+are instance of subclasses of @ref{Class @toppackage{}|word,word}.  @sysname{}
+defines the following sub-classes of @ref{Class @toppackage{}|word,word} and
 associated readers:
 
 @include generated-word-classes.texi
@@ -143,7 +143,7 @@ Example:
 
 Insert @var{word} into @var{dictionary} as an entry for @var{string}.
 
-@var{word} must be an instance of @ref{Class spell|word,word}.
+@var{word} must be an instance of @ref{Class @toppackage{}|word,word}.
 
 @var{dictionary} must be a mutable dictionary.  A ``raw'' dictionary is
 mutable, a ``compacted'' dictionary is not mutable.
