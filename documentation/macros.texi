@@ -44,7 +44,7 @@ spell
 @end iftex
 @ifnottex
 @macro symbol{NAME,PACKAGE}
-\NAME\ [\PACKAGE\]
+\PACKAGE\:\NAME\
 @end macro
 @end ifnottex
 
