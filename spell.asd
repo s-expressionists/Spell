@@ -27,9 +27,10 @@
                               (:file "raw-trie")
                               (:file "compact-trie")
                               (:file "shared-trie")
-                              (:file "similar")
                               ;; Dictionary
-                              (:file "dictionary")))
+                              (:file "dictionary")
+                              ;; Similar
+                              (:file "similar")))
 
                 (:module     "english-dictionary-data"
                  :pathname   "data"
@@ -58,6 +59,7 @@
                  :serial     t
                  :components ((:file "package")
                               (:file "utilities")
+                              (:file "similar")
                               (:file "dictionary")
                               (:file "english"))))
 

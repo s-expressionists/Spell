@@ -8,6 +8,8 @@
 
 (defgeneric lookup (string dictionary))
 
+(defgeneric map-similar (function string dictionary threshold &key group-by))
+
 (defgeneric insert (object string dictionary))
 
 (defgeneric load-dictionary (source &key into))
