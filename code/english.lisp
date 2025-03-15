@@ -32,27 +32,37 @@
 
 (defparameter *english-dictionary* #.(load-english-dictionary))
 
+;;; Query functions
+
+(declaim (inline map-english-case-variants))
+(defun map-english-case-variants (function word)
+  (let ((function (a:ensure-function function)))
+    (funcall function word)
+    (when (plusp (length word))
+      (let* ((initial   (aref word 0))
+             (downcased (char-downcase initial)))
+        (unless (char= initial downcased)
+          ;; We change, for example, "Anti-Semitic" at the beginning
+          ;; of a sentence to "anti-Semitic" which is in the
+          ;; dictionary.
+          (let ((decapitalized (copy-seq word)))
+            (setf (aref decapitalized 0) downcased)
+            (funcall function decapitalized))
+          ;; We change, for example, "PARAMETER" (which is typical for
+          ;; some commenting styles) to "parameter" which is in the
+          ;; dictionary.
+          (when (every #'upper-case-p word)
+            (funcall function (string-downcase word))))))))
+(declaim (notinline map-english-case-variants))
+
 (defun english-lookup (word)
-  (when (and word (string/= word ""))
-    (let ((dictionary *english-dictionary*))
-      (flet ((try (variant)
-               (a:when-let ((result (lookup variant dictionary)))
-                 (return-from english-lookup result))))
-        (try word)
-        (let* ((initial   (aref word 0))
-               (downcased (char-downcase initial)))
-          (unless (char= initial downcased)
-            ;; We change, for example, "Anti-Semitic" at the beginning
-            ;; of a sentence to "anti-Semitic" which is in the
-            ;; dictionary.
-            (let ((decapitalized (copy-seq word)))
-              (setf (aref decapitalized 0) downcased)
-              (try decapitalized))
-            ;; We change, for example, "PARAMETER" (which is typical
-            ;; for some commenting styles) to "parameter" which is in
-            ;; the dictionary.
-            (when (every #'upper-case-p word)
-              (try (string-downcase word)))))))))
+  (let ((dictionary *english-dictionary*))
+    (flet ((try (variant)
+             (a:when-let ((result (lookup variant dictionary)))
+               (return-from english-lookup result))))
+      (declare (dynamic-extent #'try))
+      (locally (declare (inline map-english-case-variants))
+        (map-english-case-variants #'try word)))))
 
 (declaim (inline english-text-char-p find-start find-end))
 (defun english-text-char-p (character)
