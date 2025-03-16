@@ -1,5 +1,16 @@
 Release 0.3 (not yet released)
 
+* A new protocol enables clients to find dictionary entries that are similar to
+  a given string or corrections for a given misspelled word.
+
+  The following new functions provide increasingly abstract functionality for
+  enumerating similar words and corrections: SPELL:MAP-SIMILAR,
+  SPELL:MAP-CORRECTIONS and SPELL:CORRECTIONS.
+
+  For convenience, the function SPELL:ENGLISH-CORRECTIONS automatically uses
+  the English dictionary and considers the appropriate case variants of the
+  supplied string.
+
 * Documentation is now available in the documentation directory.
 
 * The new function MAP-ENTRIES calls a supplied function for each entry in a

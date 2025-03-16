@@ -70,6 +70,76 @@ das Pferd."
 @end lisp
 @end deffn
 
+@deffuna{english-corrections,@toppackage{}} string @pkey{} threshold @
+  variants group-by count
+
+Return entries from the English dictionary that are at most
+@var{threshold} removed from @var{string} in terms of edit-distance.
+Return two values: a list of entries and a Boolean which indicates
+whether @var{string} is spelled correctly according to the English
+dictionary.  By default, the elements of the list that is the first
+return value are unique strings that correspond to the spellings of
+matching dictionary entries.  The caller can use the @var{group-by}
+parameter (see below) to make the function return pairs of
+@ref{Class @toppackage{}|word,word} instances and spellings instead.
+
+If supplied, @var{threshold} has to be a non-negative integer that
+controls the maximum edit-distance of returned corrections from
+@var{string}.  Note that the value @t{0} for @var{threshold} is not very
+useful since @ref{Function @toppackage{}|english-lookup,english-lookup}
+is a simpler way to perform that operation.
+
+If supplied, @var{variants} has to be a function that accepts as its
+arguments a string and another function which it must call once for each
+case variant of the string that should be considered.  The default value
+is a more complete and sophisticated version of the following:
+@lisp
+(lambda (continuation string)
+  (funcall continuation string)
+  (when @samp{certain-conditions}
+    (funcall continuation (string-decapitalized string)))
+  (when @samp{certain-conditions})
+    (funcall continuation (string-downcase string)))
+@end lisp
+
+If supplied, @var{group-by} has to be either @t{:spelling} or
+@t{:entry}.  It controls whether word objects are included in elements
+of the returned list.  If @var{group-by} is @t{:entry}, elements are of
+the form @t{(@var{word} . @var{spelling})}.  If @var{group-by} is
+@t{:spelling}, elements are strings and each string is one spelling.
+The default is @t{:spelling}.  Note that the value of @var{group-by}
+influences the number returned elements since a spelling that
+corresponds to multiple entries will be reported once for @t{:spelling}
+but multiple times for @t{:entry}.
+
+If supplied, @var{count} controls the maximum number of entries that are
+returned as the first value.
+
+Examples:
+@lisp
+(spell:english-corrections "lisp" :threshold 1)
+@result{} ("lisp" "lisps" "list" "lip" "limp" "wisp") T
+
+(spell:english-corrections "lifp" :threshold 1)
+@result{} ("lift" "life" "lip" "lisp" "limp") NIL
+
+(spell:english-corrections
+ "abc" :threshold 1
+       :variants (lambda (continuation string)
+                   (funcall continuation (string-upcase string))))
+@result{} ("ABC" "ABCs") T
+
+(spell:english-corrections
+ "abc" :threshold 1
+       :variants (lambda (continuation string)
+                   (funcall continuation (string-upcase string)))
+       :group-by :entry)
+@result{} ((#<EXPLICIT-BASE-NOUN "ABC" number:SINGULAR ...> . "ABC")
+   (#<EXPLICIT-BASE-NOUN "ABC" number:PLURAL ... > . "ABCs"))
+  T
+@end lisp
+@end deffn
+
 @node Word Protocols
 @section Word Protocols
 
@@ -136,6 +206,220 @@ Example:
 @result{} (#<EXPLICIT-BASE-ADVERB "bright" @{101B1CE6B3@}>
    #<EXPLICIT-BASE-ADJECTIVE "bright" degree:POSITIVE @{101B1CE663@}>
    #<EXPLICIT-BASE-NOUN "bright" number:SINGULAR case:NIL gender:NIL @{101B1CE633@}>)
+@end lisp
+@end deffn
+
+@defgena{map-similar,@toppackage{}} function string dictionary threshold @pkey{} @
+  group-by
+
+Call @var{function} for each entry in @var{dictionary} for which the
+edit-distance to @var{string} is below @var{threshold}.  The entries are
+reported in order of increasing edit-distance from @var{string}.
+
+The lambda-list of @var{function} has to be compatible with either
+@t{(spelling word distance)} if @var{group-by} is @t{:entry} or
+@t{(spelling distance)} if @var{group-by} is @t{:spelling}.  @var{word}
+is the matching @ref{Class @toppackage{}|word,word} object,
+@var{spelling} is a string that is the spelling of @var{word} (which is
+not obtainable from @var{word} itself) and @var{distance} is the
+edit-distance between @var{spelling} and @var{string}.
+
+@var{string} is the query string and can be of any subtype of
+@t{cl:string}.  At the moment, the case of string is left untouched and
+only dictionary entries that match the case are reported.
+
+@var{dictionary} is a dictionary.
+
+@var{threshold} is a non-negative integer which controls how similar to
+@var{string} in terms of edit-distance the reported entries have to be.
+
+@var{group-by} controls whether word objects are included in calls of
+@var{function}.  If @var{group-by} is @t{:entry}, @var{function} is
+called with three arguments: spelling, word and distance.  If
+@var{group-by} is @t{:spelling}, @var{function} is called with two
+arguments, spelling and distance.  The default is @t{:entry}.  Note that
+the value of @var{group-by}r influences the number of times
+@var{function} is called since a spelling that corresponds to multiple
+entries will be reported once for @t{:spelling} but multiple times for
+@t{:entry}.
+
+Example:
+@lisp
+(spell:map-similar
+ (lambda (spelling word distance)
+   (format t "~D ~10S ~A~%" distance spelling (class-name (class-of word))))
+ "lisp" spell::*english-dictionary* 1)
+@print{} 0 "lisp"     EXPLICIT-BASE-NOUN
+@print{} 0 "lisp"     EXPLICIT-BASE-VERB
+@print{} 1 "limp"     EXPLICIT-BASE-NOUN
+@print{} 1 "limp"     EXPLICIT-BASE-ADJECTIVE
+@print{} 1 "limp"     EXPLICIT-BASE-VERB
+@print{} 1 "lip"      EXPLICIT-BASE-NOUN
+@print{} 1 "lip"      EXPLICIT-BASE-VERB
+@print{} 1 "lisps"    EXPLICIT-BASE-NOUN
+@print{} 1 "lisps"    EXPLICIT-BASE-VERB
+@print{} 1 "list"     EXPLICIT-BASE-NOUN
+@print{} 1 "list"     EXPLICIT-BASE-VERB
+@print{} 1 "wisp"     EXPLICIT-BASE-NOUN
+@print{} 1 "wisp"     EXPLICIT-BASE-VERB
+@result{} NIL
+@end lisp
+
+With @t{:group-by :spelling}
+@lisp
+(spell:map-similar
+ (lambda (spelling distance)
+   (format t "~D ~S~%" distance spelling))
+ "lisp" spell::*english-dictionary* 1 :group-by :spelling)
+@print{} 0 "lisp"
+@print{} 1 "lisps"
+@print{} 1 "list"
+@print{} 1 "lip"
+@print{} 1 "limp"
+@print{} 1 "wisp"
+@result{} NIL
+@end lisp
+@end deffn
+
+@defgena{map-corrections,@toppackage{}} function string dictionary threshold @
+  @pkey{} variants group-by
+
+Call @var{function} for each entry in @var{dictionary} for which the
+edit-distance to a @emph{variant} of @var{string} is below
+@var{threshold}.  The entries are reported in order of increasing
+edit-distance from variants of @var{string}.
+
+The lambda-list of @var{function} has to be compatible with either
+@t{(spelling word distance)} if @var{group-by} is @t{:entry} or
+@t{(spelling distance)} if @var{group-by} is @t{:spelling}.  @var{word}
+is the matching @ref{Class @toppackage{}|word,word} object, @var{spelling} is a
+string that is the spelling of @var{word} (which is not obtainable from
+@var{word} itself) and @var{distance} is the edit-distance between
+@var{spelling} and one variant of @var{string}.
+
+@var{string} is the query string and can be of any subtype of
+@t{cl:string}.
+
+@var{dictionary} is a dictionary.
+
+@var{threshold} is a non-negative integer which controls how similar to
+a variant of @var{string} in terms of edit-distance the reported entries
+have to be.
+
+@var{variants} controls which variants in terms of capitalization and
+case of @var{string} should be considered.  If supplied, the value of
+@var{variants} has to be a function the lambda-list of which has to
+compatible with @t{(continuation string)} where @var{string} is the
+@var{string} mentioned above and @var{continuation} is a function that
+should be called once for each case-modified variant of @var{string}.
+Note that capitalization and case information should ideally be
+contained in dictionary entries.  The implementation of that improvement
+would make this parameter unnecessary.
+
+@var{group-by} controls whether word objects are included in calls of
+@var{function}.  If @var{group-by} is @t{:entry}, @var{function} is
+called with three arguments, spelling, word and distance.  If
+@var{group-by} is @t{:spelling}, @var{function} is called with two
+arguments, spelling and distance.  The default is @t{:entry}.  Note that
+the value of @var{group-by} influences the number of times
+@var{function} is called since a spelling that corresponds to multiple
+entries will be reported once for @t{:spelling} but multiple times for
+@t{:entry}.
+
+Examples:
+@lisp
+(spell:map-corrections
+ (lambda (spelling word distance)
+   (format t "~D ~10S ~A~%" distance spelling (class-name (class-of word))))
+ "lisp" spell::*english-dictionary* 1)
+@print{} 0 "lisp"     EXPLICIT-BASE-NOUN
+@print{} 0 "lisp"     EXPLICIT-BASE-VERB
+@print{} 1 "lisps"    EXPLICIT-BASE-NOUN
+@print{} 1 "lisps"    EXPLICIT-BASE-VERB
+@print{} 1 "list"     EXPLICIT-BASE-NOUN
+@print{} 1 "list"     EXPLICIT-BASE-VERB
+@print{} 1 "lip"      EXPLICIT-BASE-NOUN
+@print{} 1 "lip"      EXPLICIT-BASE-VERB
+@print{} 1 "limp"     EXPLICIT-BASE-NOUN
+@print{} 1 "limp"     EXPLICIT-BASE-ADJECTIVE
+@print{} 1 "limp"     EXPLICIT-BASE-VERB
+@print{} 1 "wisp"     EXPLICIT-BASE-NOUN
+@print{} 1 "wisp"     EXPLICIT-BASE-VERB
+@result{} NIL
+
+(spell:map-corrections
+ (lambda (spelling word distance)
+   (format t "~D ~10S ~A~%" distance spelling (class-name (class-of word))))
+ "lifp" spell::*english-dictionary* 1)
+@print{} 1 "lift"     EXPLICIT-BASE-NOUN
+@print{} 1 "lift"     EXPLICIT-BASE-VERB
+@print{} 1 "life"     EXPLICIT-BASE-NOUN
+@print{} 1 "lip"      EXPLICIT-BASE-NOUN
+@print{} 1 "lip"      EXPLICIT-BASE-VERB
+@print{} 1 "lisp"     EXPLICIT-BASE-NOUN
+@print{} 1 "lisp"     EXPLICIT-BASE-VERB
+@print{} 1 "limp"     EXPLICIT-BASE-NOUN
+@print{} 1 "limp"     EXPLICIT-BASE-ADJECTIVE
+@print{} 1 "limp"     EXPLICIT-BASE-VERB
+@result{} NIL
+@end lisp
+@end deffn
+
+@defgena{corrections,@toppackage{}} string dictionary threshold @
+  @pkey{} variants group-by count
+
+Return corrections from @var{dictionary} that are within @var{threshold}
+of the misspelled word @var{string}.  Return two values: a list of
+corrections and a Boolean which indicates whether @var{string} is
+spelled correctly according to @var{dictionary}.
+
+The list of entries which is returned as the first value is ordered
+according to increasing edit-distance between @var{string} and the
+respective entry.  Depending on @var{group-by} (see below), entries in
+the list are either strings that are spellings of entries in
+@var{dictionary} or pairs of the form @t{(@var{word} . @var{spelling})}.
+If the second return value is true, which indicates that @var{string} is
+spelled correctly, the first return value includes one or more entries
+which correspond to @var{string}.
+
+@var{dictionary} is a dictionary.
+
+@var{threshold} is a non-negative integer which controls how similar to
+a variant of @var{string} in terms of edit-distance the reported entries
+have to be.
+
+@var{variants} controls which variants in terms of capitalization and
+case of @var{string} should be considered.  If supplied, the value of
+@var{variants} has to be a function the lambda-list of which has to
+compatible with @t{(continuation string)} where @var{string} is the
+@var{string} mentioned above and @var{continuation} is a function that
+should be called once for each case-modified variant of @var{string}.
+Note that capitalization and case information should ideally be
+contained in dictionary entries.  The implementation of that improvement
+would make this parameter unnecessary.
+
+@var{group-by} controls whether word objects are included in elements of
+the returned list.  If @var{group-by} is @t{:entry}, elements are of the
+form @t{(@var{word} . @var{spelling})}.  If @var{group-by} is
+@t{:spelling}, elements are strings and each string is one spelling.
+The default is @t{:entry}.  Note that the value of @var{group-by}
+influences the number returned elements since a spelling that
+corresponds to multiple entries will be reported once for @t{:spelling}
+but multiple times for @t{:entry}.
+
+If supplied, @var{count} limits the maximum number of entries that are
+returned as the first value.
+
+Examples:
+@lisp
+(spell:corrections "lisp" spell::*english-dictionary* 0 :group-by :spelling)
+@result{} ("lisp") T
+
+(spell:corrections "lifp" spell::*english-dictionary* 1 :group-by :spelling)
+@result{} ("lift" "life" "lip" "lisp" "limp") NIL
+
+(spell:corrections "lisp" spell::*english-dictionary* 2 :group-by :spelling :count 3)
+@result{} ("lisp" "lisps" "list") T
 @end lisp
 @end deffn
 

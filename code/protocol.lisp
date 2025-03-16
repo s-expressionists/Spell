@@ -8,17 +8,33 @@
 
 (defgeneric lookup (string dictionary))
 
+(defgeneric map-similar (function string dictionary threshold &key group-by))
+
+(defgeneric map-corrections (function string dictionary threshold
+                             &key variants group-by))
+
+(defgeneric corrections (string dictionary threshold
+                         &key variants group-by count))
+
 (defgeneric insert (object string dictionary))
 
 (defgeneric load-dictionary (source &key into))
 
 ;;; Trie node protocols
 
+(defgeneric leafp (node))
+
+(defgeneric interiorp (node))
+
 ;;; Lookup protocol
 
 (defgeneric node-lookup (function string suffix node))
 
 (defgeneric map-node-entries (function node characters))
+
+;;; Similar protocol
+
+(defgeneric node-map-similar (function string suffix node threshold characters))
 
 ;;; Insert protocol
 

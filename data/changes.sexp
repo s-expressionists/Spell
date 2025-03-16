@@ -2,6 +2,21 @@
  (:release "0.3" nil
   (:item
    (:paragraph
+    "A" "new" "protocol" "enables" "clients" "to" "find" "dictionary" "entries"
+    "that" "are" "similar" "to" "a" "given" "string" "or" "corrections" "for"
+    "a" "given" "misspelled" "word" ".")
+   (:paragraph
+    "The" "following" "new" "functions" "provide" "increasingly" "abstract"
+    "functionality" "for" "enumerating" "similar" "words" "and" "corrections:"
+    (:symbol "spell:map-similar") "," (:symbol "spell:map-corrections") "and"
+    (:symbol "spell:corrections") ".")
+   (:paragraph
+    "For" "convenience" "," "the" "function"
+    (:symbol "spell:english-corrections") "automatically" "uses" "the" "English"
+    "dictionary" "and" "considers" "the" "appropriate" "case" "variants" "of"
+    "the" "supplied" "string" "."))
+  (:item
+   (:paragraph
     "Documentation" "is" "now" "available" "in" "the" (:tt "documentation")
     "directory" "."))
   (:item
