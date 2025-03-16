@@ -2,8 +2,10 @@
 
 * Introduction
 
-  SPELL is a spellchecking library for Common Lisp. It is made
-  available under the BSD license.
+  SPELL is a spellchecking library for Common Lisp. The code of this
+  library is made available under the BSD license. The file
+  file:data/english.txt is made available under the license in
+  file:english.LICENSE.
 
   Loading (possibly after compiling) the ~spell~ system may initially
   take between something like 3 and 60 seconds, depending on the

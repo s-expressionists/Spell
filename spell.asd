@@ -1,6 +1,6 @@
 (defsystem "spell"
   :description "Spellchecking package for Common Lisp"
-  :license     "BSD"
+  :license     "BSD" ; see LICENSE and english.LICENSE files for details
   :author      ("Robert Strandh <robert.strandh@gmail.com>"
                 "Michał \"phoe\" Herda <phoe@disroot.org>"
                 "Jan Moringen <jan.moringen@posteo.de>")
