@@ -14,6 +14,8 @@
 @settitle @sysname{} User's Manual
 
 @copying
+This manual is for @sysname{} version @sysversion{}.
+
 Copyright @copyright{} 2025 Jan Moringen
 @end copying
 
@@ -34,7 +36,7 @@ Copyright @copyright{} 2025 Jan Moringen
 @node Top
 @top @sysname{} User's Manual
 
-This manual is for @sysname{} version @sysversion{}.
+@insertcopying
 @end ifnottex
 
 @menu
