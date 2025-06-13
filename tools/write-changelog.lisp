@@ -52,7 +52,7 @@
     (mapc (lambda (child)
             (etypecase child
               ((cons (eql :paragraph)) (emit-paragraph child stream))
-              ((cons (eql :code)) (ti:write-code child stream))))
+              ((cons (eql :code)) (emit-code child stream))))
           children)))
 
 (define-emitter emit-release (:release version date &rest items)

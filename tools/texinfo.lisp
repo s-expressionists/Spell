@@ -90,8 +90,9 @@
   (format stream "@item")
   (when first-line
     (write-char #\Space stream)
-    (write-or-call first-line stream))
-  (format stream "~@:_~@:_")
+    (write-or-call first-line stream)
+    (format stream "~@:_"))
+  (format stream "~@:_")
   (funcall continuation stream)
   (format stream "~@:_"))
 
