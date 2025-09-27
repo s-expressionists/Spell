@@ -98,7 +98,7 @@ is a more complete and sophisticated version of the following:
   (funcall continuation string)
   (when @samp{certain-conditions}
     (funcall continuation (string-decapitalized string)))
-  (when @samp{certain-conditions})
+  (when @samp{certain-conditions}
     (funcall continuation (string-downcase string)))
 @end lisp
 
@@ -143,7 +143,7 @@ Examples:
 @node Word Protocols
 @section Word Protocols
 
-Entries in @sysname{} dictionaries are conceptually pair: an (implicit)
+Entries in @sysname{} dictionaries are conceptually pairs: an (implicit)
 string that is the spelling and a word object that characterizes the
 word type and the type-specific properties of the word.  Word objects
 are instance of subclasses of @ref{Class @toppackage{}|word,word}.  @sysname{}
