@@ -1,3 +1,178 @@
+;;; Sort with M-: (let ((sort-fold-case t)) (sort-lines nil (point-min) (point-max)))
+
+"backslash" :base "backslash" :type :noun :number :singular
+"backslash's" :base "backslash" :type :noun :number :singular :case :genitive
+"backslashes" :base "backslash" :type :noun :number :plural
+"backslashes'" :base "backslash" :type :noun :number :plural :case :genitive
+
+"boolean" :base "boolean" :type :noun :number :singular
+"boolean's" :base "boolean" :type :noun :number :singular :case :genitive
+"booleans" :base "boolean" :type :noun :number :plural
+"booleans'" :base "boolean" :type :noun :number :plural :case :genitive
+
+"cache" :base "cache" :type :verb :infinitive :self
+"cached" :base "cache" :type :verb :tense :passive-perfect-participle :strength :strong
+"cached" :base "cache" :type :verb :tense :past :strength :weak
+"cached" :base "cache" :type :verb :tense :perfect-participle :strength :weak
+"caching" :base "cache" :type :verb :tense :progressive
+
+"combinator" :base "combinator" :type :noun :number :singular
+"combinator's" :base "combinator" :type :noun :number :singular :case :genitive
+"combinators" :base "combinator" :type :noun :number :plural
+"combinators'" :base "combinator" :type :noun :number :plural :case :genitive
+
 "constant" :base "constant" :type :noun :number :singular
+"constant's" :base "constant" :type :noun :number :singular :case :genitive
 "constants" :base "constant" :type :noun :number :plural
+"constants'" :base "constant" :type :noun :number :plural :case :genitive
+
+"debugger" :base "debugger" :type :noun :number :singular
+"debugger's" :base "debugger" :type :noun :number :singular :case :genitive
+"debuggers" :base "debugger" :type :noun :number :plural
+"debuggers'" :base "debugger" :type :noun :number :plural :case :genitive
+
+"delegate" :base "delegate" :type :verb :infinitive :self
+"delegated" :base "delegate" :type :verb :tense :passive-perfect-participle :strength :strong
+"delegated" :base "delegate" :type :verb :tense :past :strength :weak
+"delegated" :base "delegate" :type :verb :tense :perfect-participle :strength :weak
+"delegating" :base "delegate" :type :verb :tense :progressive
+
+"filename" :base "filename" :type :noun :number :singular
+"filename's" :base "filename" :type :noun :number :singular :case :genitive
+"filenames" :base "filename" :type :noun :number :plural
+"filenames'" :base "filename" :type :noun :number :plural :case :genitive
+
+;; english.txt has "forme" as the base which is supposedly an
+;; "archaic" variant of the word.
+"form" :base "form" :type :noun :number :singular
+"form's" :base "form" :type :noun :number :singular :case :genitive
+"forms" :base "form" :type :noun :number :plural
+"forms'" :base "form" :type :noun :number :plural :case :genitive
+
+"glitch" :base "glitch" :type :noun :number :singular
+"glitch's" :base "glitch" :type :noun :number :singular :case :genitive
+"glitches" :base "glitch" :type :noun :number :plural
+"glitches'" :base "glitch" :type :noun :number :plural :case :genitive
+
+"glitch" :base "glitch" :type :verb :infinitive :self
+"glitched" :base "glitch" :type :verb :tense :passive-perfect-participle :strength :strong
+"glitched" :base "glitch" :type :verb :tense :past :strength :weak
+"glitched" :base "glitch" :type :verb :tense :perfect-participle :strength :weak
+"glitching" :base "glitch" :type :verb :tense :progressive
+
+"incrementally" :base "incrementally" :type :adverb
+
+"index" :base "index" :type :noun :number :singular
+"index's" :base "index" :type :noun :number :singular :case :genitive
+"indices" :base "index" :type :noun :number :plural
+"indices'" :base "index" :type :noun :number :plural :case :genitive
+
+"keyword" :base "keyword" :type :noun :number :singular
+"keyword's" :base "keyword" :type :noun :number :singular :case :genitive
+"keywords" :base "keyword" :type :noun :number :plural
+"keywords'" :base "keyword" :type :noun :number :plural :case :genitive
+
+"kludge" :base "kludge" :type :noun :number :singular
+"kludge's" :base "kludge" :type :noun :number :singular :case :genitive
+"kludges" :base "kludge" :type :noun :number :plural
+"kludges'" :base "kludge" :type :noun :number :plural :case :genitive
+
+"lookup" :base "lookup" :type :noun :number :singular
+"lookup's" :base "lookup" :type :noun :number :singular :case :genitive
+"lookups" :base "lookup" :type :noun :number :plural
+"lookups'" :base "lookup" :type :noun :number :plural :case :genitive
+
+"neither" :base "neither" :type :adverb
+"neither" :base "neither" :type :quantifier :number :singular
+"neither" :base "neither" :type :pronoun :person :third :number :plural
+
+"nonetheless" :base "nonetheless" :type :adverb
+
+"pairwise" :base "pairwise" :type :adverb
+
+;; english.txt has this as a verb but lacks the noun
+"pi" :base "pi" :type :noun :number :singular
+"pi's" :base "pi" :type :noun :number :singular :case :genitive
+
+"placeholder" :base "placeholder" :type :noun :number :singular
+"placeholder's" :base "placeholder" :type :noun :number :singular :case :genitive
+"placeholders" :base "placeholder" :type :noun :number :plural
+"placeholders'" :base "placeholder" :type :noun :number :plural :case :genitive
+
+"program" :base "program" :type :noun :number :singular
+"program's" :base "program" :type :noun :number :singular :case :genitive
+"programs" :base "program" :type :noun :number :plural
+"programs'" :base "program" :type :noun :number :plural :case :genitive
+
+;; english.txt has the infinitive
+"quoted" :base "quote" :type :verb :tense :past :strength :weak
+"quoted" :base "quote" :type :verb :tense :perfect-participle :strength :weak
+
+"README" :base "README" :type :noun :number :singular
+"README's" :base "README" :type :noun :number :singular :case :genitive
+"READMEs" :base "README" :type :noun :number :plural
+"READMEs'" :base "README" :type :noun :number :plural :case :genitive
+
+"recursively" :base "recursively" :type :adverb
+
+"redefine" :base "redefine" :type :verb :infinitive :self
+"redefined" :base "redefine" :type :verb :tense :past :strength :weak
+"redefined" :base "redefine" :type :verb :tense :perfect-participle :strength :weak
+"redefining" :base "redefine" :type :verb :tense :progressive
+
+"redefinition" :base "redefinition" :type :noun :number :singular
+"redefinition's" :base "redefinition" :type :noun :number :singular :case :genitive
+"redefinitions" :base "redefinition" :type :noun :number :plural
+"redefinitions'" :base "redefinition" :type :noun :number :plural :case :genitive
+
+"restart" :base "restart" :type :noun :number :singular
+"restart's" :base "restart" :type :noun :number :singular :case :genitive
+"restarts" :base "restart" :type :noun :number :plural
+"restarts'" :base "restart" :type :noun :number :plural :case :genitive
+
+"supertype" :base "supertype" :type :noun :number :singular
+"supertype's" :base "supertype" :type :noun :number :singular :case :genitive
+"supertypes" :base "supertype" :type :noun :number :plural
+"supertypes'" :base "supertype" :type :noun :number :plural :case :genitive
+
+"suboptimal" :base "suboptimal" :type :adjective :degree :positive
+"suboptimaler" :base "suboptimal" :type :adjective :degree :comparative
+"suboptimalest" :base "suboptimal" :type :adjective :degree :superlative
+
+"subtype" :base "subtype" :type :noun :number :singular
+"subtype's" :base "subtype" :type :noun :number :singular :case :genitive
+"subtypes" :base "subtype" :type :noun :number :plural
+"subtypes'" :base "subtype" :type :noun :number :plural :case :genitive
+
+"trie" :base "trie" :type :noun :number :singular
+"trie's" :base "trie" :type :noun :number :singular :case :genitive
+"tries" :base "trie" :type :noun :number :plural
+"tries'" :base "trie" :type :noun :number :plural :case :genitive
+
+"undefine" :base "undefine" :type :verb :infinitive :self
+"undefined" :base "undefine" :type :verb :tense :past :strength :weak
+"undefined" :base "undefine" :type :verb :tense :perfect-participle :strength :weak
+"undefining" :base "undefine" :type :verb :tense :progressive
+
+"unimportant" :base "unimportant" :type :adjective :degree :positive
+
+"unrelated" :base "unrelated" :type :adjective :degree :positive
+"unrelateder" :base "unrelated" :type :adjective :degree :comparative
+"unrelatedest" :base "unrelated" :type :adjective :degree :superlative
+
+"unsafe" :base "unsafe" :type :adjective :degree :positive
+"unsafer" :base "unsafe" :type :adjective :degree :comparative
+"unsafest" :base "unsafe" :type :adjective :degree :superlative
+
+;;; Fixes for things that are in english.txt in some form but are not
+;;; complete
+
+"evaluated" :base "evaluate" :type :verb :tense :past :strength :weak
+"evaluated" :base "evaluate" :type :verb :tense :perfect-participle :strength :weak
+"evaluating" :base "evaluate" :type :verb :tense :progressive
+
 "utilities" :base "utility" :type :noun :number :plural
+
+; TODO:
+; namespace instrumenting runtime reuse:verb optimizer allocator
+; functionality TODO FIXME inline
