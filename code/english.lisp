@@ -20,7 +20,8 @@
                               filename)
                         dictionary)))))
       (let ((dictionary (reduce #'load-file '("data/english.txt"
-                                              "data/english-additions.txt")
+                                              "data/english-additions.txt"
+                                              "data/common-lisp.txt")
                                 :initial-value (make-instance 'dictionary))))
         (note "Compressing dictionary")
         (setf dictionary (compact dictionary))

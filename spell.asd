@@ -35,12 +35,14 @@
                 (:module     "english-dictionary-data"
                  :pathname   "data"
                  :components ((:static-file "english.txt")
-                              (:static-file "english-additions.txt")))
+                              (:static-file "english-additions.txt")
+                              (:static-file "common-lisp.txt")))
 
                 (:module     "english-dictionary"
                  :pathname   "code"
                  :depends-on ("code"
                               "english-dictionary-data")
+                 ;; TODO separate english code and english dict dump
                  :components ((:file "english"))))
 
   :in-order-to ((test-op (test-op "spell/test"))))

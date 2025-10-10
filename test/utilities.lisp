@@ -14,7 +14,8 @@
 
 (defun map-dictionary-entries (function
                                &key (files '("data/english.txt"
-                                             "data/english-additions.txt")))
+                                             "data/english-additions.txt"
+                                             "data/common-lisp.txt")))
   (mapc (lambda (file)
           (with-open-file (stream (asdf:system-relative-pathname
                                    "spell/test" file))

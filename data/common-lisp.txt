@@ -1,0 +1,134 @@
+;;; Sort with M-: (let ((sort-fold-case t)) (sort-lines nil (point-min) (point-max)))
+
+"accessor" :base "accessor" :type :noun :number :singular
+"accessor's" :base "accessor" :type :noun :number :singular :case :genitive
+"accessors" :base "accessor" :type :noun :number :plural
+"accessors'" :base "accessor" :type :noun :number :plural :case :genitive
+
+"ANSI" :base "ANSI" :type :noun :number :singular
+"ANSI's" :base "ANSI" :type :noun :number :singular :case :genitive
+
+"Carnegie" :base "Carnegie" :type :proper-noun :number :singular
+"Carnegie's" :base "Carnegie" :type :proper-noun :number :singular :case :genitive
+
+"CL" :base "CL" :type :noun :number :singular
+"CL's" :base "CL" :type :noun :number :singular :case :genitive
+
+"cdr" :base "cdr" :type :noun :number :singular
+"cdr's" :base "cdr" :type :noun :number :singular :case :genitive
+"cdrs" :base "cdr" :type :noun :number :plural
+"cdrs'" :base "cdr" :type :noun :number :plural :case :genitive
+
+"CLOS" :base "CLOS" :type :noun :number :singular
+"CLOS'" :base "CLOS" :type :noun :number :singular :case :genitive
+
+"cons" :base "cons" :type :noun :number :singular
+"cons'" :base "cons" :type :noun :number :singular :case :genitive
+"conses" :base "cons" :type :noun :number :plural
+"conses'" :base "cons" :type :noun :number :plural :case :genitive
+
+"cons" :base "cons" :type :verb :infinitive :self
+"consed" :base "cons" :type :verb :tense :past :strength :weak
+"consed" :base "cons" :type :verb :tense :perfect-participle :strength :weak
+"consing" :base "cons" :type :verb :tense :progressive
+
+"designator" :base "designator" :type :noun :number :singular
+"designator's" :base "designator" :type :noun :number :singular :case :genitive
+"designators" :base "designator" :type :noun :number :plural
+"designators'" :base "designator" :type :noun :number :plural :case :genitive
+
+"fixnum" :base "fixnum" :type :noun :number :singular
+"fixnum's" :base "fixnum" :type :noun :number :singular :case :genitive
+"fixnums" :base "fixnum" :type :noun :number :plural
+"fixnums'" :base "fixnum" :type :noun :number :plural :case :genitive
+
+"initarg" :base "initarg" :type :noun :number :singular
+"initarg's" :base "initarg" :type :noun :number :singular :case :genitive
+"initargs" :base "initarg" :type :noun :number :plural
+"initargs'" :base "initarg" :type :noun :number :plural :case :genitive
+
+"initform" :base "initform" :type :noun :number :singular
+"initform's" :base "initform" :type :noun :number :singular :case :genitive
+"initforms" :base "initform" :type :noun :number :plural
+"initforms'" :base "initform" :type :noun :number :plural :case :genitive
+
+"Mellon" :base "Mellon" :type :proper-noun :number :singular
+"Mellon's" :base "Mellon" :type :proper-noun :number :singular :case :genitive
+
+"metaclass" :base "metaclass" :type :noun :number :singular
+"metaclass'" :base "metaclass" :type :noun :number :singular :case :genitive
+"metaclasses" :base "metaclass" :type :noun :number :plural
+"metaclasses'" :base "metaclass" :type :noun :number :plural :case :genitive
+
+"metaobject" :base "metaobject" :type :noun :number :singular
+"metaobject's" :base "metaobject" :type :noun :number :singular :case :genitive
+"metaobjects" :base "metaobject" :type :noun :number :plural
+"metaobjects'" :base "metaobject" :type :noun :number :plural :case :genitive
+
+"mixin" :base "mixin" :type :noun :number :singular
+"mixin's" :base "mixin" :type :noun :number :singular :case :genitive
+"mixins" :base "mixin" :type :noun :number :plural
+"mixins'" :base "mixin" :type :noun :number :plural :case :genitive
+
+"namestring" :base "namestring" :type :noun :number :singular
+"namestring's" :base "namestring" :type :noun :number :singular :case :genitive
+"namestrings" :base "namestring" :type :noun :number :plural
+"namestrings'" :base "namestring" :type :noun :number :plural :case :genitive
+
+"newline" :base "newline" :type :noun :number :singular
+"newline's" :base "newline" :type :noun :number :singular :case :genitive
+"newlines" :base "newline" :type :noun :number :plural
+"newlines'" :base "newline" :type :noun :number :plural :case :genitive
+
+"pathname" :base "pathname" :type :noun :number :singular
+"pathname's" :base "pathname" :type :noun :number :singular :case :genitive
+"pathnames" :base "pathname" :type :noun :number :plural
+"pathnames'" :base "pathname" :type :noun :number :plural :case :genitive
+
+"progn" :base "progn" :type :noun :number :singular
+"progn's" :base "progn" :type :noun :number :singular :case :genitive
+"progns" :base "progn" :type :noun :number :plural
+"progns'" :base "progn" :type :noun :number :plural :case :genitive
+
+"SBCL" :base "SBCL" :type :noun :number :singular
+"SBCL's" :base "SBCL" :type :noun :number :singular :case :genitive
+
+"rational" :base "rational" :type :noun :number :singular
+"rational's" :base "rational" :type :noun :number :singular :case :genitive
+"rationals" :base "rational" :type :noun :number :plural
+"rationals'" :base "rational" :type :noun :number :plural :case :genitive
+
+"readtable" :base "readtable" :type :noun :number :singular
+"readtable's" :base "readtable" :type :noun :number :singular :case :genitive
+"readtables" :base "readtable" :type :noun :number :plural
+"readtables'" :base "readtable" :type :noun :number :plural :case :genitive
+
+"restart" :base "restart" :type :noun :number :singular
+"restart's" :base "restart" :type :noun :number :singular :case :genitive
+"restarts" :base "restart" :type :noun :number :plural
+"restarts'" :base "restart" :type :noun :number :plural :case :genitive
+
+"specializer" :base "specializer" :type :noun :number :singular
+"specializer's" :base "specializer" :type :noun :number :singular :case :genitive
+"specializers" :base "specializer" :type :noun :number :plural
+"specializers'" :base "specializer" :type :noun :number :plural :case :genitive
+
+"subexpression" :base "subexpression" :type :noun :number :singular
+"subexpression's" :base "subexpression" :type :noun :number :singular :case :genitive
+"subexpressions" :base "subexpression" :type :noun :number :plural
+"subexpressions'" :base "subexpression" :type :noun :number :plural :case :genitive
+
+"subform" :base "subform" :type :noun :number :singular
+"subform's" :base "subform" :type :noun :number :singular :case :genitive
+"subforms" :base "subform" :type :noun :number :plural
+"subforms'" :base "subform" :type :noun :number :plural :case :genitive
+
+"tagbody" :base "tagbody" :type :noun :number :singular
+"tagbody's" :base "tagbody" :type :noun :number :singular :case :genitive
+"tagbodies" :base "tagbody" :type :noun :number :plural
+"tagbodies'" :base "tagbody" :type :noun :number :plural :case :genitive
+
+"truename" :base "truename" :type :noun :number :singular
+"truename's" :base "truename" :type :noun :number :singular :case :genitive
+"truenames" :base "truename" :type :noun :number :plural
+"truenames'" :base "truename" :type :noun :number :plural :case :genitive
